@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "hyperplane.h"
+
 int main(int argc, char **argv)
 {
 	int opt;
 	int k, L;	
 	int inputFileIndex, queryFileIndex, outputFileIndex;
 
-	/*===get all input arguments through getopt()*/
+	/*== get all input arguments through getopt()*/
 	while ((opt = getopt(argc, argv, "d:q:k:L:o:")) != -1)
 	{
         switch (opt)
@@ -34,11 +36,18 @@ int main(int argc, char **argv)
 		}
     }
 
-	/*===check if user entered all arguments*/
+	/*== check if user entered all arguments*/
 	if( argc != 11)
 	{
 		fprintf(stderr, "Usage: ./lsh –d <input file> –q <query file> –k <int> -L <int> -ο <output file>\n");
 		exit(EXIT_FAILURE);
 	}
+	
+	/*== making test hyperplane*/
+	//Hyperplane(128);	
+
+	/*== start reading input file*/
+
+	/*== generating number of hyperplanes to construct fi*/
 	
 }

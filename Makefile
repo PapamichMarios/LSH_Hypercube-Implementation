@@ -1,9 +1,9 @@
 CPP      = g++
-OBJ1     = lsh.o
-OBJ2	 = cube.o
+OBJ1     = lsh.o hyperplane.o help_functions.o
+OBJ2	 = cube.o help_functions.o
 BIN1     = lsh
 BIN2	 = cube
-CFLAGS   = -Wall -g
+CFLAGS   = -Wall -g -std=c++11
 
 all: $(BIN1) $(BIN2)
 
@@ -18,6 +18,12 @@ lsh.o:	lsh.cpp
 
 cube.o: cube.cpp
 	$(CPP) -c cube.cpp $(CFLAGS)
+
+hyperplane.o: hyperplane.cpp
+	$(CPP) -c hyperplane.cpp $(CFLAGS)
+
+help_functions.o: help_functions.cpp
+	$(CPP) -c help_functions.cpp $(CFLAGS)
 
 PHONY: clean
 
