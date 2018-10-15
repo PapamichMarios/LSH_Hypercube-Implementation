@@ -1,14 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include <vector>
+#include <stdexcept>
 
 #include "hyperplane.h"
+
+using namespace std;
 
 int main(int argc, char **argv)
 {
 	int opt;
 	int k, L;	
 	int inputFileIndex, queryFileIndex, outputFileIndex;
+
+	Hyperplane ** h_array;
 
 	/*== get all input arguments through getopt()*/
 	while ((opt = getopt(argc, argv, "d:q:k:L:o:")) != -1)
@@ -46,8 +55,35 @@ int main(int argc, char **argv)
 	/*== making test hyperplane*/
 	//Hyperplane(128);	
 
-	/*== start reading input file*/
+	/*== generating an array of hyperplanes to construct fi*/
 
-	/*== generating number of hyperplanes to construct fi*/
+	/*== start reading input file*/
+	ifstream infile(argv[inputFileIndex]);
+	string line, coord;
 	
+	vector<float> point;
+
+	/*== get each line from file - each line is a vector of size 128*/
+	while(getline(infile, line))
+	{
+		istringstream iss(line);
+		/*== split the line into 128 coords which we save into a vector of size 128*/
+		while(getline(iss, coord, ' '))
+		{
+			try {
+				point.push_back(stof(coord));
+			}
+			catch(const std::invalid_argument& ia){
+				continue;
+			}
+		}
+
+		//iterating through vector
+		//for(vector<float>::const_iterator it=point.begin(); it!=point.end(); ++it)
+		//	cout << *it << endl;
+
+		
+	}
+	
+	exit(EXIT_SUCCESS);
 }

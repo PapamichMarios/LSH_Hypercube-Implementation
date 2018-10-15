@@ -25,8 +25,22 @@ Hyperplane::Hyperplane(int dim)
 
 Hyperplane::~Hyperplane()
 {
-	
+	free(this->vector);
+	this->vector = NULL;	
 }
 
 /*============================= Rest of the functions*/
+float * Hyperplane::getVector()
+{
+	return this->vector;
+}
 
+int Hyperplane::getW()
+{
+	return this->w;
+}
+
+float Hyperplane::getT()
+{
+	return this->t;
+}

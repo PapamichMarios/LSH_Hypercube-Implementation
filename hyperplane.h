@@ -1,8 +1,6 @@
 #ifndef __HYPERPLANE_H__
 #define __HYPERPLANE_H__
 
-#define DIM 128
-
 #include <string>
 
 class Hyperplane
@@ -11,10 +9,15 @@ class Hyperplane
 		float * vector;
 		int w;
 		float t;
+
 	public:
 		Hyperplane(int dim);
 		~Hyperplane();
 
+		/*== getters*/
+		float* getVector();
+		int getW();
+		float getT();
 
 };
 #endif

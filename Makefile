@@ -1,5 +1,5 @@
 CPP      = g++
-OBJ1     = lsh.o hyperplane.o help_functions.o
+OBJ1     = fi.o lsh.o hyperplane.o help_functions.o
 OBJ2	 = cube.o help_functions.o
 BIN1     = lsh
 BIN2	 = cube
@@ -24,6 +24,9 @@ hyperplane.o: hyperplane.cpp
 
 help_functions.o: help_functions.cpp
 	$(CPP) -c help_functions.cpp $(CFLAGS)
+
+fi.o: fi.cpp
+	$(CPP) -c fi.cpp $(CFLAGS)
 
 PHONY: clean
 
