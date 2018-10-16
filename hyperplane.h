@@ -6,18 +6,20 @@
 class Hyperplane
 {
 	private:
-		float * vector;
+		double * vector;
 		int w;
-		float t;
+		double t;
 
 	public:
 		Hyperplane(int dim);
 		~Hyperplane();
 
 		/*== getters*/
-		float* getVector();
+		double* getVector();
 		int getW();
-		float getT();
+		double getT();
+
+		void printHyperplane(int dim);
 
 };
 #endif

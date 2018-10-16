@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <string>
 #include <iostream>
+#include <random>
 
 #include "hyperplane.h"
 #include "help_functions.h"
@@ -17,7 +18,11 @@ Hyperplane::Hyperplane(int dim)
 	this->w = W;
 
 	/*== t: uniformly random in [0,w)*/
-	this->t = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/W));
+	random_device rd;
+	default_random_engine generator(rd());
+	uniform_real_distribution<double> distribution(0.0, double(w));
+
+	this->t = distribution(generator);
 
 	/*== vector: single precision coords N(0,1)*/
 	this->vector = help_functions::normal_distribution_vector(dim);
@@ -28,9 +33,8 @@ Hyperplane::~Hyperplane()
 	free(this->vector);
 	this->vector = NULL;	
 }
-
 /*============================= Rest of the functions*/
-float * Hyperplane::getVector()
+double * Hyperplane::getVector()
 {
 	return this->vector;
 }
@@ -40,7 +44,19 @@ int Hyperplane::getW()
 	return this->w;
 }
 
-float Hyperplane::getT()
+double Hyperplane::getT()
 {
 	return this->t;
+}
+
+void Hyperplane::printHyperplane(int dim)
+{
+	cout << "-t: " << this->t << endl;
+	cout << "-w: " << this->w << endl;
+	cout << "-vector: " << endl;
+
+	for(int i=0; i<dim; i++)
+		cout << this->vector[i] << " " ;
+
+	cout << endl << "---------" << endl << endl;
 }

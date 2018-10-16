@@ -10,7 +10,7 @@ class fi
 		int * 		 r_array;
 
 	public:
-		fi();
+		fi(int k, int dim);
 		~fi();
 
 		Hyperplane ** getH_array();

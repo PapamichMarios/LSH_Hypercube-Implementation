@@ -6,12 +6,13 @@
 
 namespace help_functions
 {
-	float * normal_distribution_vector(int dim)
+	double * normal_distribution_vector(int dim)
 	{
-	 	float* vector = (float*)std::calloc(dim+1, sizeof(float));
+	 	double* vector = (double*)std::calloc(dim+1, sizeof(double));
 
-		std::normal_distribution<float> distribution(0.0, 1.0);
-		std::default_random_engine generator;
+		std::random_device rd;
+		std::default_random_engine generator(rd());
+		std::normal_distribution<double> distribution(0.0, 1.0);
 
 		for(int i=0; i<dim; i++)
 		{

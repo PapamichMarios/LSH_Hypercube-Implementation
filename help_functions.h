@@ -3,6 +3,6 @@
 
 namespace help_functions
 {
-	float * normal_distribution_vector(int dim);
+	double * normal_distribution_vector(int dim);
 }
 #endif
