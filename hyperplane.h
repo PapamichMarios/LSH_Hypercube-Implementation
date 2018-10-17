@@ -6,7 +6,7 @@
 class Hyperplane
 {
 	private:
-		double * vector;
+		double * v;
 		int w;
 		double t;
 
@@ -20,6 +20,7 @@ class Hyperplane
 		double getT();
 
 		void printHyperplane(int dim);
+		int computeH(std::vector<double> p);
 
 };
 #endif

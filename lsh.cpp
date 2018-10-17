@@ -9,8 +9,7 @@
 #include <list>
 #include <algorithm>
 
-#include "hyperplane.h"
-#include "fi.h"
+#include "hash_table.h"
 
 using namespace std;
 
@@ -21,8 +20,8 @@ int main(int argc, char **argv)
 	int inputFileIndex, queryFileIndex, outputFileIndex;
 	int tableSize;
 
-	Hyperplane ** h_array;
 	int i,j;
+	HashTable<vector<double>, string> * hash_table;
 
 	/*== get all input arguments through getopt()*/
 	while ((opt = getopt(argc, argv, "d:q:k:L:o:")) != -1)
@@ -82,14 +81,11 @@ int main(int argc, char **argv)
 	infile.clear();
 	infile.seekg(0, ios::beg);
 
-	/*== construct fi*/
-	fi * fi_ = new fi(k, dimensions);
-
 	/*== construct hash table*/
+	hash_table = new HashTable<vector<double>, string>(tableSize, k, dimensions);
 	
-	
-	vector<float> point;
 	/*== get each line from file - each line is a vector of size dim*/
+	vector<double> point;
 	while(getline(infile, line))
 	{
 		istringstream iss(line);
@@ -97,18 +93,18 @@ int main(int argc, char **argv)
 		while(getline(iss, coord, ' '))
 		{
 			try {
-				point.push_back(stof(coord));
+				point.push_back(stod(coord));
 			}
 			catch(const std::invalid_argument& ia){
 				continue;
 			}
 		}
-
-		//iterating through vector
-		//for(vector<float>::const_iterator it=point.begin(); it!=point.end(); ++it)
-		//	cout << *it << endl;
-
 		
+		/*== hash the vector point to our hash table*/
+		hash_table->put(point, "test");
+
+		/*== clear vector for next iteration*/
+		point.clear();
 	}
 	
 	exit(EXIT_SUCCESS);

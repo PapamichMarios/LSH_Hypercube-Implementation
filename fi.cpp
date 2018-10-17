@@ -2,6 +2,7 @@
 #include <vector>
 #include <random>
 #include <algorithm>
+#include <climits>
 
 #include "fi.h"
 #include "hyperplane.h"
@@ -13,8 +14,11 @@ fi::fi(int k, int dim)
 {
 	int i;
 	vector<double> t_list;
+	
+	this->k   = k;
+	this->dim = dim;
 
-	/*constructing the hs*/
+	/*== constructing the hs*/
 	this->h_array = new Hyperplane*[k];
 	for(i=0; i<k; i++)
 	{
@@ -33,10 +37,10 @@ fi::fi(int k, int dim)
 			t_list.push_back(this->h_array[i]->getT());
 	}
 
-	/*constructing the rs*/
+	/*== constructing the rs*/
 	std::random_device rd;
 	std::default_random_engine generator(rd());
-	std::uniform_int_distribution<int> distribution(0.0, 100.0);
+	std::uniform_int_distribution<int> distribution(0.0, 50.0);
 	
 	this->r_array = new int[k];
 	for(i=0; i<k; i++)
@@ -56,4 +60,51 @@ Hyperplane ** fi::getH_array()
 int * fi::getR_array()
 {
 	return this->r_array;
+}
+
+int fi::hashValue(vector<double> p, int table_size)
+{
+	int i;
+	int sum[this->k];
+	long long int hash_val=0;
+
+	/*== for every h compute the floor of (p*v+t)/w */
+	for(i=0; i<this->k; i++)
+	{
+		sum[i] = 0;
+		sum[i] = h_array[i]->computeH(p);
+	}
+
+	for(i=0; i<this->k; i++)
+		hash_val += r_array[i]*sum[i];
+
+	/*== handle overflow*/
+	if( hash_val > INT_MAX || hash_val < INT_MIN )
+	{
+		cout << "Overflow detected(fi), repicking ris and recomputing fi" << endl;
+
+		int d = 100;
+		while(hash_val > INT_MAX || hash_val < INT_MIN)
+		{
+			std::random_device rd;
+			std::default_random_engine generator(rd());
+			std::uniform_int_distribution<int> distribution(0, d/2);
+			hash_val = 0;
+
+			for(i=0; i<k; i++)
+			{
+				this->r_array[i] = distribution(generator);
+				hash_val += r_array[i]*sum[i];
+			}
+		}
+	}
+
+	/*== mod with table size, to fit our hash array*/
+	hash_val = hash_val % table_size;
+
+	/*== handle negative hash values*/
+	if( hash_val < 0 )
+		hash_val = table_size - hash_val;
+
+	return (int)hash_val;
 }

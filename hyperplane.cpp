@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <random>
+#include <cmath>
+#include <climits>
 
 #include "hyperplane.h"
 #include "help_functions.h"
@@ -25,18 +27,18 @@ Hyperplane::Hyperplane(int dim)
 	this->t = distribution(generator);
 
 	/*== vector: single precision coords N(0,1)*/
-	this->vector = help_functions::normal_distribution_vector(dim);
+	this->v = help_functions::normal_distribution_vector(dim);
 }
 
 Hyperplane::~Hyperplane()
 {
-	free(this->vector);
-	this->vector = NULL;	
+	free(this->v);
+	this->v = NULL;	
 }
 /*============================= Rest of the functions*/
 double * Hyperplane::getVector()
 {
-	return this->vector;
+	return this->v;
 }
 
 int Hyperplane::getW()
@@ -56,7 +58,25 @@ void Hyperplane::printHyperplane(int dim)
 	cout << "-vector: " << endl;
 
 	for(int i=0; i<dim; i++)
-		cout << this->vector[i] << " " ;
+		cout << this->v[i] << " " ;
 
 	cout << endl << "---------" << endl << endl;
+}
+
+int Hyperplane::computeH(vector<double> p)
+{
+	int sum=0;
+	long int dot_product=0;
+
+	for(unsigned int i=0; i<p.size(); i++)
+		dot_product += v[i]*p[i];
+
+	/*== handle overflow by restarting*/
+	if( dot_product > INT_MAX || dot_product < INT_MIN)
+	{
+		cout << "Overflow detected(dot product), exiting program..." << endl;
+		exit(EXIT_FAILURE);
+	}
+ 
+	return sum = floor( (double) ((int)dot_product + this->t)/this->w );
 }
