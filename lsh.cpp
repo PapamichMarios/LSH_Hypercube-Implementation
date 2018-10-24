@@ -101,7 +101,7 @@ int main(int argc, char **argv)
 		}
 		
 		/*== hash the vector point to our hash table*/
-		hash_table->put(point, "test");
+		hash_table->put(point);
 
 		/*== clear vector for next iteration*/
 		point.clear();

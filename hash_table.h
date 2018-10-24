@@ -10,7 +10,7 @@ template <typename K, typename V>
 class HashTable
 {
 	private:
-    	HashNode<K, V> **table;
+    	HashNode<K> **table;
     	fi * hash_function;
 		int tableSize;
 
@@ -18,7 +18,7 @@ class HashTable
 		HashTable(int tableSize, int k, int dim)
 		{
 			/*== constructing hash table*/
-			this->table = new HashNode<K, V> *[tableSize]();
+			this->table = new HashNode<K> *[tableSize]();
 
 			this->tableSize = tableSize;
 
@@ -29,8 +29,8 @@ class HashTable
 		~HashTable()
 		{
 			/*== destroying all buckets*/
-			HashNode<K, V> * temp = NULL;
-			HashNode<K, V> * prev = NULL;
+			HashNode<K> * temp = NULL;
+			HashNode<K> * prev = NULL;
 
 			for(int i=0; i<this->tableSize; i++)
 			{
@@ -48,11 +48,12 @@ class HashTable
 			delete[] table;
 		}
 		
-    	void put(const K &key, const V &value)
+    	void put(const K &key)
 		{
         	int hash_val = hash_function->hashValue(key, this->tableSize);
-        	HashNode<K, V> *prev = NULL;
-        	HashNode<K, V> *entry = table[hash_val];
+        	HashNode<K> *prev = NULL;
+        	HashNode<K> *entry = table[hash_val];
+			std::string G;
 
         	while (entry != NULL && entry->getKey() != key) 
 			{
@@ -62,7 +63,9 @@ class HashTable
 
         	if (entry == NULL) 
 			{
-            	entry = new HashNode<K, V>(key, value);
+				G = hash_function->computeG(key);
+            	entry = new HashNode<K>(key, G);
+
             	if (prev == NULL) 
 				{
                 	/*== insert as first bucket*/

@@ -13,8 +13,20 @@
 
 using namespace std;
 
-/*============================= Constructor && Destructor*/
+/*============================= Constructors && Destructors*/
 Hyperplane::Hyperplane(int dim)
+{
+	/*== vector: single precision coords N(0,1)*/
+	this->v = help_functions::normal_distribution_vector(dim);
+}
+
+Hyperplane::~Hyperplane()
+{
+	free(this->v);
+	this->v = NULL;	
+}
+
+Hyperplane_EUC::Hyperplane_EUC(int dim) : Hyperplane(dim)
 {
 	/*== w: 4 (can change from definition)*/
 	this->w = W;
@@ -25,33 +37,30 @@ Hyperplane::Hyperplane(int dim)
 	uniform_real_distribution<double> distribution(0.0, double(w));
 
 	this->t = distribution(generator);
-
-	/*== vector: single precision coords N(0,1)*/
-	this->v = help_functions::normal_distribution_vector(dim);
 }
 
-Hyperplane::~Hyperplane()
+Hyperplane_COS::Hyperplane_COS(int dim) : Hyperplane(dim)
 {
-	free(this->v);
-	this->v = NULL;	
+	
 }
+	
 /*============================= Rest of the functions*/
 double * Hyperplane::getVector()
 {
 	return this->v;
 }
 
-int Hyperplane::getW()
+int Hyperplane_EUC::getW()
 {
 	return this->w;
 }
 
-double Hyperplane::getT()
+double Hyperplane_EUC::getT()
 {
 	return this->t;
 }
 
-void Hyperplane::printHyperplane(int dim)
+void Hyperplane_EUC::printHyperplane(int dim)
 {
 	cout << "-t: " << this->t << endl;
 	cout << "-w: " << this->w << endl;
@@ -63,7 +72,7 @@ void Hyperplane::printHyperplane(int dim)
 	cout << endl << "---------" << endl << endl;
 }
 
-int Hyperplane::computeH(vector<double> p)
+int Hyperplane_EUC::computeH(vector<double> p)
 {
 	int sum=0;
 	long int dot_product=0;
@@ -79,4 +88,9 @@ int Hyperplane::computeH(vector<double> p)
 	}
  
 	return sum = floor( (double) ((int)dot_product + this->t)/this->w );
+}
+
+int Hyperplane_COS::computeH(vector<double> p)
+{
+	return 1;
 }

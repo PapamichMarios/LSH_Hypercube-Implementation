@@ -3,6 +3,7 @@
 #include <random>
 #include <algorithm>
 #include <climits>
+#include <string>
 
 #include "fi.h"
 #include "hyperplane.h"
@@ -19,10 +20,10 @@ fi::fi(int k, int dim)
 	this->dim = dim;
 
 	/*== constructing the hs*/
-	this->h_array = new Hyperplane*[k];
+	this->h_array = new Hyperplane_EUC*[k];
 	for(i=0; i<k; i++)
 	{
-		this->h_array[i] = new Hyperplane(dim);
+		this->h_array[i] = new Hyperplane_EUC(dim);
 		
 		/*== checking that hs differ*/
 		if( std::find(t_list.begin(), t_list.end(), h_array[i]->getT()) != t_list.end() )
@@ -52,7 +53,7 @@ fi::~fi()
 	
 }
 /*================================ Rest of the functions*/
-Hyperplane ** fi::getH_array()
+Hyperplane_EUC ** fi::getH_array()
 {
 	return this->h_array;
 }
@@ -73,6 +74,8 @@ int fi::hashValue(vector<double> p, int table_size)
 	{
 		sum[i] = 0;
 		sum[i] = h_array[i]->computeH(p);
+
+		cout<<"h" << i << ": " << sum[i] << endl;
 	}
 
 	for(i=0; i<this->k; i++)
@@ -104,7 +107,18 @@ int fi::hashValue(vector<double> p, int table_size)
 
 	/*== handle negative hash values*/
 	if( hash_val < 0 )
-		hash_val = table_size - hash_val;
+		hash_val = table_size + hash_val;
 
+	cout<<hash_val<<endl;
 	return (int)hash_val;
+}
+
+string fi::computeG(vector<double> p)
+{
+	string G;
+
+	for(int i=0; i<k; i++)
+		G += to_string(this->h_array[i]->computeH(p)) + ".";	
+
+	return G;
 }

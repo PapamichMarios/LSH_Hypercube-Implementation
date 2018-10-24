@@ -1,18 +1,16 @@
 #ifndef __HASH_NODE_H__
 #define __HASH_NODE_H__
 
-template <typename K, typename V>
+template <typename K>
 class HashNode
 {
 	private:
     	K key;
-    	V value;
-		/*== g*/
-    	HashNode *next;
+    	std::string G;
+		HashNode *next;
 
 	public:
-    	HashNode(const K &key, const V &value) 
-			: key(key), value(value), next(NULL) { }
+    	HashNode(const K &key, const std::string G) : key(key), G(G), next(NULL) { }
 		
 		~HashNode()
 		{
@@ -21,22 +19,17 @@ class HashNode
 
 		K getKey()
 		{
-			return key;
+			return this->key;
 		}
 
-		V getValue()
+		std::string getG()
 		{
-			return value;
-		}
-
-		void setValue(V value)
-		{
-			this->value = value;
+			return this->G;
 		}
 
 		HashNode *getNext()
 		{
-			return next;
+			return this->next;
 		}
 
 		void setNext(HashNode *next)

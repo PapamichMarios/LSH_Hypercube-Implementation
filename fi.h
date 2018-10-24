@@ -6,7 +6,7 @@
 class fi
 {
 	private:
-	 	Hyperplane ** h_array;
+	 	Hyperplane_EUC ** h_array;
 		int * 		 r_array;
 		int k;
 		int dim;
@@ -15,8 +15,10 @@ class fi
 		fi(int k, int dim);
 		~fi();
 
-		Hyperplane ** getH_array();
+		Hyperplane_EUC ** getH_array();
 		int * getR_array();
 		int hashValue(std::vector<double> p, int table_size);
+
+		std::string computeG(std::vector<double> p);
 };
 #endif
