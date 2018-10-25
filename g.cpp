@@ -1,4 +1,5 @@
 #include <vector>
+#include <iostream>
 
 #include "g.h"
 #include "hyperplane.h"
@@ -31,7 +32,16 @@ Hyperplane_COS ** G::getH_array()
 	return this->h_array;
 }
 
-int G::hashValue(vector<double> p)
+int G::hashValue(vector<double> x)
 {
-	return 1;
+	string hash_val;
+
+	/*== take dot product of x with ri*/
+	for(int i=0; i<this->k; i++)
+		hash_val += to_string(h_array[i]->computeH(x));
+
+	cout << hash_val << endl;	
+	cout << stoi(hash_val, nullptr, 2)<< endl;
+
+	return stoi(hash_val, nullptr, 2);
 }

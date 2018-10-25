@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <unistd.h>
 #include <fstream>
@@ -8,6 +8,8 @@
 #include <stdexcept>
 #include <list>
 #include <algorithm>
+#include <cstring>
+#include <math.h>
 
 #include "hash_table.h"
 
@@ -21,7 +23,8 @@ int main(int argc, char **argv)
 	int tableSize;
 
 	int i,j;
-	HashTable<vector<double>, string> * hash_table;
+	HashTable<vector<double>> * hash_tableptr;
+
 
 	/*== get all input arguments through getopt()*/
 	while ((opt = getopt(argc, argv, "d:q:k:L:o:")) != -1)
@@ -49,6 +52,7 @@ int main(int argc, char **argv)
 		}
     }
 
+
 	/*== check if user entered all arguments*/
 	if( argc != 11)
 	{
@@ -57,20 +61,38 @@ int main(int argc, char **argv)
 	}
 	
 	ifstream infile(argv[inputFileIndex]);
-	string line, coord;
+	string line, type, coord;
 	int lines_counter=0;
 	int dimensions=0;
 
-	/*== find out how many lines the file has*/
-	while(getline(infile, line))
-		++lines_counter;
 
-	tableSize = lines_counter/2;
-	
+	/*== find out if we want euclidean or cosine and assign pointer to the proper hash_table*/
+	getline(infile, line);
+	if( line.compare(0, 6, "cosine") == 0 )
+		type = "COS";
+	else
+		type = "EUC";
+
 	infile.clear();
 	infile.seekg(0, ios::beg);
 
+	/*== find out how many lines the file has(used for euclidean)*/
+	if( type == "EUC" )
+	{
+		while(getline(infile, line))
+			++lines_counter;
+
+		tableSize = lines_counter/2;
+		
+		infile.clear();
+		infile.seekg(0, ios::beg);
+	}
+	else
+		tableSize = pow(2, k);
+
+
 	/*== find out how many dimensions a point is*/
+	getline(infile, line);
 	getline(infile, line);
 	istringstream iss_d(line);
 	while(getline(iss_d, coord, ' '))
@@ -81,11 +103,28 @@ int main(int argc, char **argv)
 	infile.clear();
 	infile.seekg(0, ios::beg);
 
-	/*== construct hash table*/
-	hash_table = new HashTable<vector<double>, string>(tableSize, k, dimensions);
+
+	/*== create hash table based on type and assign a pointer*/
+	if( type == "COS" )
+	{
+		HashTable_COS<vector<double>> * hash_table = new HashTable_COS<vector<double>>(tableSize, k, dimensions);
+		hash_tableptr = hash_table;
+	}
+	else
+	{
+		HashTable_EUC<vector<double>> * hash_table = new HashTable_EUC<vector<double>>(tableSize, k, dimensions);
+		hash_tableptr = hash_table;
+	}
+
+	infile.clear();
+	infile.seekg(0, ios::beg);
 	
+
 	/*== get each line from file - each line is a vector of size dim*/
 	vector<double> point;
+	if( type == "COS" )
+		getline(infile, line);
+
 	while(getline(infile, line))
 	{
 		istringstream iss(line);
@@ -100,12 +139,16 @@ int main(int argc, char **argv)
 			}
 		}
 		
+
 		/*== hash the vector point to our hash table*/
-		hash_table->put(point);
+		hash_tableptr->put(point);
 
 		/*== clear vector for next iteration*/
 		point.clear();
 	}
 	
+
+	/*== get each vector from query file*/
+
 	exit(EXIT_SUCCESS);
 }

@@ -92,5 +92,13 @@ int Hyperplane_EUC::computeH(vector<double> p)
 
 int Hyperplane_COS::computeH(vector<double> p)
 {
-	return 1;
+	int dot_product = 0;
+
+	for(unsigned int i=0; i<p.size(); i++)
+		dot_product += v[i]*p[i];
+
+	if(dot_product > 0)
+		return 1;
+	
+	return 0;
 }
