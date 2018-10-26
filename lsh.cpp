@@ -66,44 +66,13 @@ int main(int argc, char **argv)
 
 
 	/*== find out if we want euclidean or cosine and assign pointer to the proper hash_table*/
-	getline(infile, line);
-	if( line.compare(0, 6, "cosine") == 0 )
-		type = "COS";
-	else
-		type = "EUC";
-
-	infile.clear();
-	infile.seekg(0, ios::beg);
+	type = help_functions::find_type(infile);
 
 	/*== find out how many lines the file has(used for euclidean)*/
-	if( type == "EUC" )
-	{
-		int lines_counter=0;
-
-		while(getline(infile, line))
-			++lines_counter;
-
-		tableSize = lines_counter/4;
-		
-		infile.clear();
-		infile.seekg(0, ios::beg);
-	}
-	else
-		tableSize = pow(2, k);
-
+	tableSize = help_functions::calculate_tableSize(infile, type, k);
 
 	/*== find out how many dimensions a point is*/
-	getline(infile, line);
-	getline(infile, line);
-	istringstream iss_d(line);
-	while(getline(iss_d, coord, ' '))
-		dimensions++;
-
-	dimensions -= 2;
-
-	infile.clear();
-	infile.seekg(0, ios::beg);
-
+	dimensions = help_functions::calculate_dimensions(infile);
 
 	/*== create hash table based on type and assign a pointer*/
 	if( type == "COS" )

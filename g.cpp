@@ -40,8 +40,5 @@ int G::hashValue(vector<double> x)
 	for(int i=0; i<this->k; i++)
 		hash_val += to_string(h_array[i]->computeH(x));
 
-	cout << hash_val << endl;	
-	cout << stoi(hash_val, nullptr, 2)<< endl;
-
 	return stoi(hash_val, nullptr, 2);
 }

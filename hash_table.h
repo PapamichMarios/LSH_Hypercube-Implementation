@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <climits>
+#include <ctime>
 
 #include "hash_node.h"
 #include "help_functions.h"
@@ -122,12 +123,13 @@ class HashTable_EUC : public HashTable<K>
 		{
 			double distance;
 			HashNode<K> * temp = NULL;
+			clock_t end_time;
 
 			double min_distance = INT_MAX;
 			std::string identifier = "NONE";
 
 			std::string G = hash_function->computeG(query);
-
+			const clock_t begin_time = clock();
 
 			/*== start iterating through the hash table*/
 			for(int i=0; i<this->tableSize; i++)
@@ -158,11 +160,13 @@ class HashTable_EUC : public HashTable<K>
 					temp = temp->getNext();
 				}
 			}
+			
+			end_time = clock();
 
 			/*== print to file*/
 			outputfile << identifier << std::endl;
 			outputfile << "distanceTrue: " << min_distance << std::endl;
-			outputfile << "tTrue: " << std::endl;
+			outputfile << "tTrue: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
 			
 		}
 
@@ -171,10 +175,12 @@ class HashTable_EUC : public HashTable<K>
 			std::vector<double> distance_list;
 			std::vector<std::string> identifier_list;
 			double distance=0;
+			clock_t end_time = clock();
 
 			int hash_val		= hash_function->hashValue(query, this->tableSize);
 			std::string G		= hash_function->computeG(query);
 			HashNode<K> * temp  = this->table[hash_val];
+			const clock_t begin_time = clock();
 
 
 			/*== get every point saved on the bucket and find the euclidean distance with query point*/
@@ -197,7 +203,7 @@ class HashTable_EUC : public HashTable<K>
 				/*== continue the iteration*/
 				temp = temp->getNext();
 			}
-
+			end_time = clock();
 
 			/*== print to file*/
 			if( distance_list.size() > 0 )
@@ -207,7 +213,7 @@ class HashTable_EUC : public HashTable<K>
 
 				outputfile << identifier_list[min_index] << std::endl;
 				outputfile << "distanceLSH: " << *min << std::endl;
-				outputfile << "tLSH: " << std::endl;// << time << std::endl;
+				outputfile << "tLSH: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
 			}
 			else
 			{
@@ -309,9 +315,11 @@ class HashTable_COS : public HashTable<K>
 		{
 			double distance;
 			HashNode<K> * temp = NULL;
+			clock_t end_time;
 
 			double min_distance = INT_MAX;
 			std::string identifier = "NONE";
+			const clock_t begin_time = clock();
 
 			/*== start iterating through the hash table*/
 			for(int i=0; i<this->tableSize; i++)
@@ -335,11 +343,12 @@ class HashTable_COS : public HashTable<K>
 					temp = temp->getNext();
 				}
 			}
+			end_time = clock();
 
 			/*== print to file*/
 			outputfile << identifier << std::endl;
 			outputfile << "distanceTrue: " << min_distance << std::endl;
-			outputfile << "tTrue: " << std::endl;
+			outputfile << "tTrue: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" <<  std::endl;
 			
 		}
 
@@ -348,10 +357,11 @@ class HashTable_COS : public HashTable<K>
 			std::vector<double> distance_list;
 			std::vector<std::string> identifier_list;
 			double distance=0;
+			clock_t end_time;
 
 			int hash_val		= hash_function->hashValue(query);
 			HashNode<K> * temp  = this->table[hash_val];
-
+			const clock_t begin_time = clock();
 
 			/*== get every point saved on the bucket and find the euclidean distance with query point*/
 			while( temp != NULL )
@@ -365,6 +375,7 @@ class HashTable_COS : public HashTable<K>
 				/*== continue the iteration*/
 				temp = temp->getNext();
 			}
+			end_time = clock();
 
 
 			/*== print to file*/
@@ -375,7 +386,7 @@ class HashTable_COS : public HashTable<K>
 
 				outputfile << identifier_list[min_index] << std::endl;
 				outputfile << "distanceLSH: " << *min << std::endl;
-				outputfile << "tLSH: " << std::endl;// << time << std::endl;
+				outputfile << "tLSH: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
 			}
 			else
 			{
