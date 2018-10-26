@@ -26,7 +26,6 @@ int main(int argc, char **argv)
 	{
         switch (opt)
 		{
-			printf("asdas %d\n", optind);
 			case 'd':
 				inputFileIndex = optind-1;
 				break;

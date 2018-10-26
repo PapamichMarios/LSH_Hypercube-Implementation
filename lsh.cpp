@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 	int inputFileIndex, queryFileIndex, outputFileIndex;
 	int tableSize;
 
-	int i,j;
+	int i;
 	HashTable<vector<double>> * hash_tableptr;
 
 
@@ -62,7 +62,6 @@ int main(int argc, char **argv)
 	
 	ifstream infile(argv[inputFileIndex]);
 	string line, type, coord;
-	int lines_counter=0;
 	int dimensions=0;
 
 
@@ -79,10 +78,12 @@ int main(int argc, char **argv)
 	/*== find out how many lines the file has(used for euclidean)*/
 	if( type == "EUC" )
 	{
+		int lines_counter=0;
+
 		while(getline(infile, line))
 			++lines_counter;
 
-		tableSize = lines_counter/2;
+		tableSize = lines_counter/4;
 		
 		infile.clear();
 		infile.seekg(0, ios::beg);
@@ -98,7 +99,7 @@ int main(int argc, char **argv)
 	while(getline(iss_d, coord, ' '))
 		dimensions++;
 
-	dimensions -= 1;
+	dimensions -= 2;
 
 	infile.clear();
 	infile.seekg(0, ios::beg);
@@ -122,6 +123,7 @@ int main(int argc, char **argv)
 
 	/*== get each line from file - each line is a vector of size dim*/
 	vector<double> point;
+	string identifier;
 	if( type == "COS" )
 		getline(infile, line);
 
@@ -129,6 +131,7 @@ int main(int argc, char **argv)
 	{
 		istringstream iss(line);
 		/*== split the line into 128 coords which we save into a vector of size 128*/
+		getline(iss, identifier, ' ');
 		while(getline(iss, coord, ' '))
 		{
 			try {
@@ -141,7 +144,7 @@ int main(int argc, char **argv)
 		
 
 		/*== hash the vector point to our hash table*/
-		hash_tableptr->put(point);
+		hash_tableptr->put(point, identifier);
 
 		/*== clear vector for next iteration*/
 		point.clear();
@@ -149,6 +152,47 @@ int main(int argc, char **argv)
 	
 
 	/*== get each vector from query file*/
+	ifstream queryfile(argv[queryFileIndex]);
+	ofstream outputfile(argv[outputFileIndex]);
+	while(getline(queryfile, line))
+	{
+		istringstream iss(line);
+		/*== split the line into 128 coords which we save into a vector of size 128*/
+		getline(iss, identifier, ' ');
+		while(getline(iss, coord, ' '))
+		{
+			try {
+				point.push_back(stod(coord));
+			}
+			catch(const std::invalid_argument& ia){
+				continue;
+			}
+		}
+		
+
+		/*== print id to file*/
+		outputfile << "Query: " << identifier << endl;
+
+		/*== Range Search*/
+		outputfile << "R-near neighbours:" << endl;
+		hash_tableptr->RS(point, outputfile, 1, 200);
+
+		/*== Real Range Search*/
+
+		/*== Approximate Nearest Neighbour*/
+		outputfile << "LSH Neighbour: ";
+		hash_tableptr->ANN(point, outputfile);
+
+		/*== Nearest Neighbour*/
+		outputfile << "Nearest neighbour: ";
+		hash_tableptr->NN(point, outputfile);
+
+
+		outputfile << endl << endl;
+
+		/*== clear vector for next iteration*/
+		point.clear();
+	}
 
 	exit(EXIT_SUCCESS);
 }

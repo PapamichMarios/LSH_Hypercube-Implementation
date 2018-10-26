@@ -8,9 +8,10 @@ class HashNode
     	K key;
     	std::string G;
 		HashNode *next;
+		std::string id;
 
 	public:
-    	HashNode(const K &key, const std::string G) : key(key), G(G), next(NULL) { }
+    	HashNode(const K &key, const std::string G, const std::string id) : key(key), G(G), next(NULL), id(id) { }
 		
 		~HashNode()
 		{
@@ -25,6 +26,11 @@ class HashNode
 		std::string getG()
 		{
 			return this->G;
+		}
+
+		std::string getId()
+		{
+			return this->id;
 		}
 
 		HashNode *getNext()

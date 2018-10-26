@@ -9,15 +9,16 @@
 #include "hyperplane.h"
 #include "help_functions.h"
 
-#define W 4
+#define W 400
 
 using namespace std;
+using namespace help_functions;
 
 /*============================= Constructors && Destructors*/
 Hyperplane::Hyperplane(int dim)
 {
 	/*== vector: single precision coords N(0,1)*/
-	this->v = help_functions::normal_distribution_vector(dim);
+	this->v = normal_distribution_vector(dim);
 }
 
 Hyperplane::~Hyperplane()
@@ -75,7 +76,7 @@ void Hyperplane_EUC::printHyperplane(int dim)
 int Hyperplane_EUC::computeH(vector<double> p)
 {
 	int sum=0;
-	long int dot_product=0;
+	long double dot_product=0;
 
 	for(unsigned int i=0; i<p.size(); i++)
 		dot_product += v[i]*p[i];
@@ -87,7 +88,7 @@ int Hyperplane_EUC::computeH(vector<double> p)
 		exit(EXIT_FAILURE);
 	}
  
-	return sum = floor( (double) ((int)dot_product + this->t)/this->w );
+	return sum = floor( (double) ((double)dot_product + this->t)/this->w );
 }
 
 int Hyperplane_COS::computeH(vector<double> p)

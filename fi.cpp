@@ -41,7 +41,7 @@ fi::fi(int k, int dim)
 	/*== constructing the rs*/
 	std::random_device rd;
 	std::default_random_engine generator(rd());
-	std::uniform_int_distribution<int> distribution(0.0, 50.0);
+	std::uniform_int_distribution<int> distribution(0, 32);
 	
 	this->r_array = new int[k];
 	for(i=0; i<k; i++)
@@ -75,7 +75,7 @@ int fi::hashValue(vector<double> p, int table_size)
 		sum[i] = 0;
 		sum[i] = h_array[i]->computeH(p);
 
-		cout<<"h" << i << ": " << sum[i] << endl;
+		//cout<<"h" << i << ": " << sum[i] << endl;
 	}
 
 	for(i=0; i<this->k; i++)
@@ -109,7 +109,7 @@ int fi::hashValue(vector<double> p, int table_size)
 	if( hash_val < 0 )
 		hash_val = table_size + hash_val;
 
-	cout<<hash_val<<endl;
+	//cout<<hash_val<<endl;
 	return (int)hash_val;
 }
 

@@ -2,8 +2,12 @@
 #define __HASH_TABLE_H__
 
 #include <string>
+#include <algorithm>
+#include <fstream>
+#include <climits>
 
 #include "hash_node.h"
+#include "help_functions.h"
 #include "fi.h"
 #include "g.h"
 
@@ -45,8 +49,12 @@ class HashTable
 			delete[] table;
 		}
 		
-    	virtual void put(const K &key) =0;
-    
+    	virtual void put(const K &key, std::string identifier) =0;
+		virtual void ANN(const K &query, std::ofstream& outputfile) =0;
+		virtual void NN (const K &query, std::ofstream& outputfile) =0;
+		virtual void RS (const K &query,std::ofstream& outputfile, int c, int R) =0;
+};
+
 //	bool get(const K &key, V &value) {
   //      unsigned long hashValue = hashFunc(key);
    //     HashNode<K, V> *entry = table[hashValue];
@@ -60,7 +68,6 @@ class HashTable
       //  }
      //   return false;
    // }
-};
 
 template <typename K>
 class HashTable_EUC : public HashTable<K>
@@ -80,7 +87,7 @@ class HashTable_EUC : public HashTable<K>
 			delete[] hash_function;
 		}
 
-    	void put(const K &key)
+    	void put(const K &key, std::string identifier)
 		{
         	int hash_val = hash_function->hashValue(key, this->tableSize);
         	HashNode<K> *prev = NULL;
@@ -96,7 +103,7 @@ class HashTable_EUC : public HashTable<K>
         	if (entry == NULL) 
 			{
 				G = hash_function->computeG(key);
-            	entry = new HashNode<K>(key, G);
+            	entry = new HashNode<K>(key, G, identifier);
 
             	if (prev == NULL) 
 				{
@@ -109,6 +116,144 @@ class HashTable_EUC : public HashTable<K>
             	}
         	} 
     	}
+
+		/*== Neighbour functions*/
+		void NN(const K &query, std::ofstream& outputfile)
+		{
+			double distance;
+			HashNode<K> * temp = NULL;
+
+			double min_distance = INT_MAX;
+			std::string identifier = "NONE";
+
+			std::string G = hash_function->computeG(query);
+
+
+			/*== start iterating through the hash table*/
+			for(int i=0; i<this->tableSize; i++)
+			{
+				/*== assign temp to the head of the bucket*/
+				temp = this->table[i];	
+				
+				/*== iterate through every node in the bucket*/
+				while( temp != NULL )
+				{
+					/*== compare the g(query) with the g(point)*/
+					if( G != temp->getG() )
+					{
+						temp = temp->getNext();
+						continue;
+					}
+
+					/*== if they match calculate distance*/
+					distance = help_functions::euclidean_distance(query, temp->getKey());
+					
+					if(distance < min_distance)
+					{
+						min_distance = distance;
+						identifier = temp->getId();
+					}
+
+					/*== continue the iteration*/
+					temp = temp->getNext();
+				}
+			}
+
+			/*== print to file*/
+			outputfile << identifier << std::endl;
+			outputfile << "distanceTrue: " << min_distance << std::endl;
+			outputfile << "tTrue: " << std::endl;
+			
+		}
+
+		void ANN(const K &query, std::ofstream& outputfile)
+		{
+			std::vector<double> distance_list;
+			std::vector<std::string> identifier_list;
+			double distance=0;
+
+			int hash_val		= hash_function->hashValue(query, this->tableSize);
+			std::string G		= hash_function->computeG(query);
+			HashNode<K> * temp  = this->table[hash_val];
+
+
+			/*== get every point saved on the bucket and find the euclidean distance with query point*/
+			while( temp != NULL )
+			{
+				/*== compare the g(query) with the g(point)*/
+				if( G != temp->getG() )
+				{
+					temp = temp->getNext();
+					continue;
+				}
+
+
+				/*== if they match, save the distance*/
+				distance = help_functions::euclidean_distance(query, temp->getKey());
+	
+				distance_list.push_back(distance);
+				identifier_list.push_back(temp->getId());
+
+				/*== continue the iteration*/
+				temp = temp->getNext();
+			}
+
+
+			/*== print to file*/
+			if( distance_list.size() > 0 )
+			{
+				auto min = std::min_element(distance_list.begin(), distance_list.end());
+				int min_index = std::distance(distance_list.begin(), min);
+
+				outputfile << identifier_list[min_index] << std::endl;
+				outputfile << "distanceLSH: " << *min << std::endl;
+				outputfile << "tLSH: " << std::endl;// << time << std::endl;
+			}
+			else
+			{
+				outputfile << "-" << std::endl;
+				outputfile << "distanceLSH: -" << std::endl;
+				outputfile << "tLSH: " << std::endl;
+			}
+
+		}
+
+		void RS(const K &query, std::ofstream& outputfile, int c, int R)
+		{
+			std::vector<double> distance_list;
+			std::vector<std::string> identifier_list;
+			double distance=0;
+
+			int hash_val		= hash_function->hashValue(query, this->tableSize);
+			std::string G		= hash_function->computeG(query);
+			HashNode<K> * temp  = this->table[hash_val];
+
+			/*== iterate through the bucket*/
+			while( temp != NULL )
+			{
+				/*== compare the g(query) with the g(point)*/
+				if( G != temp->getG() )
+				{
+					temp = temp->getNext();
+					continue;
+				}
+			
+				/*== if they match calculate the distance*/
+				distance = help_functions::euclidean_distance(query, temp->getKey());
+				if(distance<c*R)
+				{
+					distance_list.push_back(distance);
+					identifier_list.push_back(temp->getId());
+				}	
+
+				/*== iterate to the next node*/
+				temp = temp->getNext();	
+			}	
+
+			/*== print neighbours*/
+			for(unsigned int i=0; i<distance_list.size(); i++)
+				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
+		}
 
 };
 
@@ -130,7 +275,7 @@ class HashTable_COS : public HashTable<K>
 			delete[] hash_function;
 		}
 
-    	void put(const K &key)
+    	void put(const K &key, std::string identifier)
 		{
         	int hash_val = hash_function->hashValue(key);
         	HashNode<K> *prev = NULL;
@@ -144,7 +289,7 @@ class HashTable_COS : public HashTable<K>
 
         	if (entry == NULL) 
 			{
-            	entry = new HashNode<K>(key, std::to_string(hash_val));
+            	entry = new HashNode<K>(key, std::to_string(hash_val), identifier);
 
             	if (prev == NULL) 
 				{
@@ -158,7 +303,117 @@ class HashTable_COS : public HashTable<K>
         	} 
 			
 		}
-		
+
+		/*== Neighbour functions*/
+		void NN(const K &query, std::ofstream& outputfile)
+		{
+			double distance;
+			HashNode<K> * temp = NULL;
+
+			double min_distance = INT_MAX;
+			std::string identifier = "NONE";
+
+			/*== start iterating through the hash table*/
+			for(int i=0; i<this->tableSize; i++)
+			{
+				/*== assign temp to the head of the bucket*/
+				temp = this->table[i];	
+				
+				/*== iterate through every node in the bucket*/
+				while( temp != NULL )
+				{
+					/*== calculate distance*/
+					distance = help_functions::euclidean_distance(query, temp->getKey());
+					
+					if(distance < min_distance)
+					{
+						min_distance = distance;
+						identifier = temp->getId();
+					}
+
+					/*== continue the iteration*/
+					temp = temp->getNext();
+				}
+			}
+
+			/*== print to file*/
+			outputfile << identifier << std::endl;
+			outputfile << "distanceTrue: " << min_distance << std::endl;
+			outputfile << "tTrue: " << std::endl;
+			
+		}
+
+		void ANN(const K &query, std::ofstream& outputfile)
+		{
+			std::vector<double> distance_list;
+			std::vector<std::string> identifier_list;
+			double distance=0;
+
+			int hash_val		= hash_function->hashValue(query);
+			HashNode<K> * temp  = this->table[hash_val];
+
+
+			/*== get every point saved on the bucket and find the euclidean distance with query point*/
+			while( temp != NULL )
+			{
+				/*== calculate the distance*/
+				distance = help_functions::euclidean_distance(query, temp->getKey());
+	
+				distance_list.push_back(distance);
+				identifier_list.push_back(temp->getId());
+
+				/*== continue the iteration*/
+				temp = temp->getNext();
+			}
+
+
+			/*== print to file*/
+			if( distance_list.size() > 0 )
+			{
+				auto min = std::min_element(distance_list.begin(), distance_list.end());
+				int min_index = std::distance(distance_list.begin(), min);
+
+				outputfile << identifier_list[min_index] << std::endl;
+				outputfile << "distanceLSH: " << *min << std::endl;
+				outputfile << "tLSH: " << std::endl;// << time << std::endl;
+			}
+			else
+			{
+				outputfile << "-" << std::endl;
+				outputfile << "distanceLSH: -" << std::endl;
+				outputfile << "tLSH: " << std::endl;
+			}
+
+		}
+
+		void RS(const K &query, std::ofstream& outputfile, int c, int R)
+		{
+			std::vector<double> distance_list;
+			std::vector<std::string> identifier_list;
+			double distance=0;
+
+			int hash_val		= hash_function->hashValue(query);
+			HashNode<K> * temp  = this->table[hash_val];
+
+			/*== iterate through the bucket*/
+			while( temp != NULL )
+			{
+				/*== calculate the distance*/
+				distance = help_functions::euclidean_distance(query, temp->getKey());
+				if(distance<c*R)
+				{
+					distance_list.push_back(distance);
+					identifier_list.push_back(temp->getId());
+				}	
+
+				/*== iterate to the next node*/
+				temp = temp->getNext();	
+			}	
+
+			/*== print neighbours*/
+			for(unsigned int i=0; i<distance_list.size(); i++)
+				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
+		}
 };
 
 #endif
