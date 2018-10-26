@@ -1,6 +1,6 @@
 CPP      = g++
-OBJ1     = fi.o lsh.o hyperplane.o help_functions.o g.o
-OBJ2	 = cube.o help_functions.o
+OBJ1     = fi.o lsh.o hyperplane.o g.o
+OBJ2	 = cube.o 
 BIN1     = lsh
 BIN2	 = cube
 CFLAGS   = -Wall -g -std=c++11
@@ -21,9 +21,6 @@ cube.o: cube.cpp
 
 hyperplane.o: hyperplane.cpp
 	$(CPP) -c hyperplane.cpp $(CFLAGS)
-
-help_functions.o: help_functions.cpp
-	$(CPP) -c help_functions.cpp $(CFLAGS)
 
 fi.o: fi.cpp
 	$(CPP) -c fi.cpp $(CFLAGS)
