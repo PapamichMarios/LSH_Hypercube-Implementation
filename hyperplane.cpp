@@ -9,7 +9,7 @@
 #include "hyperplane.h"
 #include "help_functions.h"
 
-#define W 400
+#define W 400 
 
 using namespace std;
 using namespace help_functions;
@@ -40,11 +40,21 @@ Hyperplane_EUC::Hyperplane_EUC(int dim) : Hyperplane(dim)
 	this->t = distribution(generator);
 }
 
+Hyperplane_EUC::~Hyperplane_EUC()
+{
+	
+}	
+
 Hyperplane_COS::Hyperplane_COS(int dim) : Hyperplane(dim)
 {
 	
 }
+
+Hyperplane_COS::~Hyperplane_COS()
+{
 	
+}
+
 /*============================= Rest of the functions*/
 double * Hyperplane::getVector()
 {

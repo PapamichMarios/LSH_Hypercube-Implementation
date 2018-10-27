@@ -10,7 +10,7 @@ class Hyperplane
 
 	public:
 		Hyperplane(int dim);
-		~Hyperplane();
+		virtual ~Hyperplane();
 
 		/*== getters*/
 		double* getVector();

@@ -16,6 +16,38 @@
 
 namespace help_functions
 {
+	inline void print_NN(std::vector<std::vector<std::string>> hash_table_measurements,std::ofstream& outputfile)
+	{
+		std::vector<double> distance_list;
+
+		for(unsigned int i=0; i<hash_table_measurements.size(); i++)
+			distance_list.push_back(stod(hash_table_measurements.at(i).at(0)));
+			
+		auto min = std::min_element(distance_list.begin(), distance_list.end());
+		int min_index = std::distance(distance_list.begin(), min);
+
+		/*== print to file*/
+		outputfile << hash_table_measurements.at(min_index).at(1) << std::endl;
+		outputfile << "distanceTrue: " << *min << std::endl;
+		outputfile << "tTrue: " << hash_table_measurements.at(min_index).at(2) << " secs" << std::endl;
+	}
+
+	inline void print_ANN(std::vector<std::vector<std::string>> hash_table_measurements,std::ofstream& outputfile)
+	{
+		std::vector<double> distance_list;
+
+		for(unsigned int i=0; i<hash_table_measurements.size(); i++)
+			distance_list.push_back(stod(hash_table_measurements.at(i).at(0)));
+			
+		auto min = std::min_element(distance_list.begin(), distance_list.end());
+		int min_index = std::distance(distance_list.begin(), min);
+
+		/*== print to file*/
+		outputfile << hash_table_measurements.at(min_index).at(1) << std::endl;
+		outputfile << "distanceLSH: " << *min << std::endl;
+		outputfile << "tLSH: " << hash_table_measurements.at(min_index).at(2) << " secs" << std::endl;
+	}
+
 	inline double * normal_distribution_vector(int dim)
 	{
 	 	double* vector = (double*)std::calloc(dim+1, sizeof(double));
@@ -73,7 +105,7 @@ namespace help_functions
 				++lines_counter;
 
 			
-			table_size = lines_counter/4;
+			table_size = lines_counter/2;
 
 			infile.clear();
 			infile.seekg(0, std::ios::beg);

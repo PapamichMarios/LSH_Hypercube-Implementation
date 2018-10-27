@@ -28,7 +28,7 @@ class HashTable
 			this->tableSize = tableSize;
 		}
 	
-		~HashTable()
+		virtual ~HashTable()
 		{
 			/*== destroying all buckets*/
 			HashNode<K> * temp = NULL;
@@ -51,24 +51,11 @@ class HashTable
 		}
 		
     	virtual void put(const K &key, std::string identifier) =0;
-		virtual void ANN(const K &query, std::ofstream& outputfile) =0;
-		virtual void NN (const K &query, std::ofstream& outputfile) =0;
+
+		virtual std::vector<std::string> ANN(const K &query) =0;
+		virtual std::vector<std::string> NN(const K &query) =0;
 		virtual void RS (const K &query,std::ofstream& outputfile, int c, int R) =0;
 };
-
-//	bool get(const K &key, V &value) {
-  //      unsigned long hashValue = hashFunc(key);
-   //     HashNode<K, V> *entry = table[hashValue];
-//
- //       while (entry != NULL) {
-  //          if (entry->getKey() == key) {
-   //             value = entry->getValue();
-    //            return true;
-     //       }
-      //      entry = entry->getNext();
-      //  }
-     //   return false;
-   // }
 
 template <typename K>
 class HashTable_EUC : public HashTable<K>
@@ -119,8 +106,9 @@ class HashTable_EUC : public HashTable<K>
     	}
 
 		/*== Neighbour functions*/
-		void NN(const K &query, std::ofstream& outputfile)
+		std::vector<std::string> NN(const K &query)
 		{
+			std::vector<std::string> measurements;
 			double distance;
 			HashNode<K> * temp = NULL;
 			clock_t end_time;
@@ -136,7 +124,7 @@ class HashTable_EUC : public HashTable<K>
 			{
 				/*== assign temp to the head of the bucket*/
 				temp = this->table[i];	
-				
+
 				/*== iterate through every node in the bucket*/
 				while( temp != NULL )
 				{
@@ -163,17 +151,24 @@ class HashTable_EUC : public HashTable<K>
 			
 			end_time = clock();
 
-			/*== print to file*/
-			outputfile << identifier << std::endl;
-			outputfile << "distanceTrue: " << min_distance << std::endl;
-			outputfile << "tTrue: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
-			
+			/*== save measurements into a vector of size 3
+				 0: distance
+				 1: identifier
+				 2: time
+			  == */
+
+			measurements.push_back(std::to_string(min_distance));
+			measurements.push_back(identifier);
+			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
+
+			return measurements;
 		}
 
-		void ANN(const K &query, std::ofstream& outputfile)
+		std::vector<std::string> ANN(const K &query)
 		{
-			std::vector<double> distance_list;
-			std::vector<std::string> identifier_list;
+			std::vector<std::string> measurements;
+			double min_distance = INT_MAX;
+			std::string identifier = "NONE";
 			double distance=0;
 			clock_t end_time = clock();
 
@@ -193,35 +188,31 @@ class HashTable_EUC : public HashTable<K>
 					continue;
 				}
 
-
 				/*== if they match, save the distance*/
 				distance = help_functions::euclidean_distance(query, temp->getKey());
 	
-				distance_list.push_back(distance);
-				identifier_list.push_back(temp->getId());
+				if(distance < min_distance)
+				{
+					min_distance = distance;
+					identifier = temp->getId();
+				}
 
 				/*== continue the iteration*/
 				temp = temp->getNext();
 			}
 			end_time = clock();
 
-			/*== print to file*/
-			if( distance_list.size() > 0 )
-			{
-				auto min = std::min_element(distance_list.begin(), distance_list.end());
-				int min_index = std::distance(distance_list.begin(), min);
+			/*== save measurements into a vector of size 3
+				 0: distance
+				 1: identifier
+				 2: time
+			  == */
 
-				outputfile << identifier_list[min_index] << std::endl;
-				outputfile << "distanceLSH: " << *min << std::endl;
-				outputfile << "tLSH: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
-			}
-			else
-			{
-				outputfile << "-" << std::endl;
-				outputfile << "distanceLSH: -" << std::endl;
-				outputfile << "tLSH: " << std::endl;
-			}
+			measurements.push_back(std::to_string(min_distance));
+			measurements.push_back(identifier);
+			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
 
+			return measurements;
 		}
 
 		void RS(const K &query, std::ofstream& outputfile, int c, int R)
@@ -311,8 +302,9 @@ class HashTable_COS : public HashTable<K>
 		}
 
 		/*== Neighbour functions*/
-		void NN(const K &query, std::ofstream& outputfile)
+		std::vector<std::string> NN(const K &query)
 		{
+			std::vector<std::string> measurements;
 			double distance;
 			HashNode<K> * temp = NULL;
 			clock_t end_time;
@@ -345,18 +337,25 @@ class HashTable_COS : public HashTable<K>
 			}
 			end_time = clock();
 
-			/*== print to file*/
-			outputfile << identifier << std::endl;
-			outputfile << "distanceTrue: " << min_distance << std::endl;
-			outputfile << "tTrue: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" <<  std::endl;
-			
+			/*== save measurements into a vector of size 3
+				 0: distance
+				 1: identifier
+				 2: time
+			  == */
+
+			measurements.push_back(std::to_string(min_distance));
+			measurements.push_back(identifier);
+			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
+
+			return measurements;
 		}
 
-		void ANN(const K &query, std::ofstream& outputfile)
+		std::vector<std::string> ANN(const K &query)
 		{
-			std::vector<double> distance_list;
-			std::vector<std::string> identifier_list;
+			std::vector<std::string> measurements;
 			double distance=0;
+			double min_distance = INT_MAX;
+			std::string identifier = "NONE";
 			clock_t end_time;
 
 			int hash_val		= hash_function->hashValue(query);
@@ -369,32 +368,28 @@ class HashTable_COS : public HashTable<K>
 				/*== calculate the distance*/
 				distance = help_functions::euclidean_distance(query, temp->getKey());
 	
-				distance_list.push_back(distance);
-				identifier_list.push_back(temp->getId());
+				if(distance < min_distance)
+				{
+					min_distance = distance;
+					identifier = temp->getId();
+				}
 
 				/*== continue the iteration*/
 				temp = temp->getNext();
 			}
 			end_time = clock();
 
+			/*== save measurements into a vector of size 3
+				 0: distance
+				 1: identifier
+				 2: time
+			  == */
 
-			/*== print to file*/
-			if( distance_list.size() > 0 )
-			{
-				auto min = std::min_element(distance_list.begin(), distance_list.end());
-				int min_index = std::distance(distance_list.begin(), min);
+			measurements.push_back(std::to_string(min_distance));
+			measurements.push_back(identifier);
+			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
 
-				outputfile << identifier_list[min_index] << std::endl;
-				outputfile << "distanceLSH: " << *min << std::endl;
-				outputfile << "tLSH: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
-			}
-			else
-			{
-				outputfile << "-" << std::endl;
-				outputfile << "distanceLSH: -" << std::endl;
-				outputfile << "tLSH: " << std::endl;
-			}
-
+			return measurements;
 		}
 
 		void RS(const K &query, std::ofstream& outputfile, int c, int R)
