@@ -15,6 +15,8 @@
 #include "help_functions.h"
 #include "hyper_cube.h"
 
+#define C 1
+
 using namespace std;
 
 int main(int argc, char **argv)
@@ -151,6 +153,7 @@ int main(int argc, char **argv)
 
 		/*== Range Search*/
 		outputfile << "R-near neighbours:" << endl;
+		hyper_cubeptr->RS(point, outputfile, C, R, probes, M);
 
 		/*== Approximate Nearest Neighbour*/
 		outputfile << "LSH Neighbour: ";

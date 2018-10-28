@@ -127,6 +127,7 @@ int main(int argc, char **argv)
 
 	vector<string> measurements;
 	vector<vector<string>> hash_table_measurements;
+	map<string, double> dist_map;
 
 	/*== first line of the query file contains the Radius*/
 	getline(queryfile, line);
@@ -157,7 +158,8 @@ int main(int argc, char **argv)
 		/*== Range Search*/
 		outputfile << "R-near neighbours:" << endl;
 		for(i=0; i<L; i++)
-			hash_tableptr[i]->RS(point, outputfile, C, R);
+			hash_tableptr[i]->RS(point, outputfile, C, R, dist_map);
+		help_functions::print_RS(dist_map, outputfile);
 
 		/*== Approximate Nearest Neighbour*/
 		outputfile << "LSH Neighbour: ";
@@ -183,6 +185,7 @@ int main(int argc, char **argv)
 		/*== clear vector for next iteration*/
 		point.clear();
 		hash_table_measurements.clear();
+		dist_map.clear();
 	}
 
 	exit(EXIT_SUCCESS);

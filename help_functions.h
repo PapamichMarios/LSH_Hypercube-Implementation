@@ -13,9 +13,16 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <map>
 
 namespace help_functions
 {
+	inline void print_RS(std::map<std::string, double> dist_map, std::ofstream &outputfile)
+	{
+		for(std::map<std::string, double>::const_iterator it = dist_map.begin();it != dist_map.end(); ++it)
+			outputfile << it->first << " " << it->second << std::endl;
+	}
+
 	inline void print_NN(std::vector<std::vector<std::string>> hash_table_measurements,std::ofstream& outputfile)
 	{
 		std::vector<double> distance_list;

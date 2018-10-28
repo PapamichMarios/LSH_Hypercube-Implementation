@@ -6,6 +6,7 @@
 #include <fstream>
 #include <climits>
 #include <ctime>
+#include <map>
 
 #include "hash_node.h"
 #include "help_functions.h"
@@ -54,7 +55,7 @@ class HashTable
 
 		virtual std::vector<std::string> ANN(const K &query) =0;
 		virtual std::vector<std::string> NN(const K &query) =0;
-		virtual void RS (const K &query,std::ofstream& outputfile, int c, double R) =0;
+		virtual void RS (const K &query,std::ofstream& outputfile, int c, double R, std::map<std::string, double> &dist_map) =0;
 };
 
 template <typename K>
@@ -215,10 +216,8 @@ class HashTable_EUC : public HashTable<K>
 			return measurements;
 		}
 
-		void RS(const K &query, std::ofstream& outputfile, int c, double R)
+		void RS(const K &query, std::ofstream& outputfile, int c, double R, std::map<std::string, double> &dist_map)
 		{
-			std::vector<double> distance_list;
-			std::vector<std::string> identifier_list;
 			double distance=0;
 
 			int hash_val		= hash_function->hashValue(query, this->tableSize);
@@ -240,17 +239,14 @@ class HashTable_EUC : public HashTable<K>
 	
 				if(distance<c*R)
 				{
-					distance_list.push_back(distance);
-					identifier_list.push_back(temp->getId());
+					dist_map[temp->getId()] = distance;
+					//distance_list.push_back(distance);
+					//identifier_list.push_back(temp->getId());
 				}	
 
 				/*== iterate to the next node*/
 				temp = temp->getNext();	
 			}	
-
-			/*== print neighbours*/
-			for(unsigned int i=0; i<distance_list.size(); i++)
-				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
 		}
 
 };
@@ -393,10 +389,8 @@ class HashTable_COS : public HashTable<K>
 			return measurements;
 		}
 
-		void RS(const K &query, std::ofstream& outputfile, int c, double R)
+		void RS(const K &query, std::ofstream& outputfile, int c, double R, std::map<std::string, double> &dist_map)
 		{
-			std::vector<double> distance_list;
-			std::vector<std::string> identifier_list;
 			double distance=0;
 
 			int hash_val		= hash_function->hashValue(query);
@@ -407,19 +401,17 @@ class HashTable_COS : public HashTable<K>
 			{
 				/*== calculate the distance*/
 				distance = help_functions::cosine_distance(query, temp->getKey());
+
 				if(distance<c*R)
 				{
-					distance_list.push_back(distance);
-					identifier_list.push_back(temp->getId());
+					dist_map[temp->getId()] = distance;
+					//distance_list.push_back(distance);
+					//identifier_list.push_back(temp->getId());
 				}	
 
 				/*== iterate to the next node*/
 				temp = temp->getNext();	
 			}	
-
-			/*== print neighbours*/
-			for(unsigned int i=0; i<distance_list.size(); i++)
-				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
 		}
 };
 
