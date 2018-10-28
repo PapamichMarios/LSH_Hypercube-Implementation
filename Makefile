@@ -1,6 +1,6 @@
 CPP      = g++
 OBJ1     = fi.o lsh.o hyperplane.o g.o
-OBJ2	 = cube.o 
+OBJ2	 = cube.o fi.o hyperplane.o g.o 
 BIN1     = lsh
 BIN2	 = cube
 CFLAGS   = -Wall -g -std=c++11

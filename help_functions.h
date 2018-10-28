@@ -73,6 +73,45 @@ namespace help_functions
 		return sqrt(distance);
 	}
 
+	template <typename K>
+	inline double cosine_distance(const K &vector1, const K &vector2)
+	{
+		double distance = 0;
+
+		double dot_product = 0;
+		
+		double length1=0, length2=0;
+		double length_product = 0;
+
+		for(unsigned int i=0; i<vector1.size(); i++)
+		{
+			dot_product += vector1[i]*vector2[i];
+			length1 += pow(vector1[i], 2);
+			length2 += pow(vector2[i], 2);
+		}
+
+		length_product = sqrt(length1*length2);
+
+		/*== dist(x,y) = 1 - cos(x,y) 
+			 cos(x,y) = x*y/|x|*|y|
+		  == */
+		return distance = 1 - dot_product/length_product;
+	}
+
+	inline int hamming_distance(int x, int y)
+	{
+  		int dist = 0;
+		char val = x^y;
+
+  		while(val)   
+  		{
+    		++dist; 
+    		val &= val - 1; 
+  		}
+
+ 		return dist;
+	}
+
 	inline int calculate_dimensions(std::ifstream& infile)
 	{
 		int dimensions=0;

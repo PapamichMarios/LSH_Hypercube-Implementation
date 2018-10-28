@@ -9,9 +9,13 @@
 #include <list>
 #include <algorithm>
 #include <cstring>
+#include <string>
 #include <math.h>
 
 #include "hash_table.h"
+
+/*== c used for Range Search*/
+#define C 1
 
 using namespace std;
 
@@ -20,7 +24,6 @@ int main(int argc, char **argv)
 	int opt;
 	int k, L;	
 	int inputFileIndex, queryFileIndex, outputFileIndex;
-	int tableSize;
 
 	int i;
 	HashTable<vector<double>> ** hash_tableptr;
@@ -61,53 +64,31 @@ int main(int argc, char **argv)
 	}
 	
 	ifstream infile(argv[inputFileIndex]);
-	string line, type, coord;
-	int dimensions=0;
+	string line, coord;
 
-
-	/*== find out if we want euclidean or cosine and assign pointer to the proper hash_table*/
-	type = help_functions::find_type(infile);
+	/*== find out if we want euclidean or cosine*/
+	string type = help_functions::find_type(infile);
 
 	/*== find out how many lines the file has(used for euclidean)*/
-	tableSize = help_functions::calculate_tableSize(infile, type, k);
+	int tableSize = help_functions::calculate_tableSize(infile, type, k);
 
 	/*== find out how many dimensions a point is*/
-	dimensions = help_functions::calculate_dimensions(infile);
-
-	/*== create hash table based on type and assign a pointer*/
-	//if( type == "COS" )
-	//{
-	//	HashTable_COS<vector<double>> * hash_table = new HashTable_COS<vector<double>>(tableSize, k, dimensions);
-	//	hash_tableptr = hash_table;
-	//}
-	//else
-	//{
-	//	HashTable_EUC<vector<double>> * hash_table = new HashTable_EUC<vector<double>>(tableSize, k, dimensions);
-	//	hash_tableptr = hash_table;
-	//}
+	int dimensions = help_functions::calculate_dimensions(infile);
 
 	/*== create hash table based on type and assign a pointer*/
 	if(type == "COS")
 	{
-		//HashTable_COS<vector<double>> ** hash_table = new HashTable_COS<vector<double>>*[L];
 		hash_tableptr = new HashTable<vector<double>>*[L];
 
 		for(int i=0; i<L; i++)
-		{
 			hash_tableptr[i] = new HashTable_COS<vector<double>>(tableSize, k, dimensions);
-			//hash_tableptr[i] = hash_table[i];
-		}
 	}
 	else
 	{
-		//HashTable_EUC<vector<double>> ** hash_table = new HashTable_EUC<vector <double>>*[L];
 		hash_tableptr = new HashTable<vector<double>>*[L];
 
 		for(int i=0; i<L; i++)
-		{
 			hash_tableptr[i] = new HashTable_EUC<vector <double>>(tableSize, k, dimensions);
-			//hash_tableptr[i] = hash_table[i];
-		}
 	}
 
 	/*== get each line from file - each line is a vector of size dim*/
@@ -135,7 +116,6 @@ int main(int argc, char **argv)
 		/*== hash the vector point to our hash table*/
 		for(i=0; i<L; i++)
 			hash_tableptr[i]->put(point, identifier);
-
 		/*== clear vector for next iteration*/
 		point.clear();
 	}
@@ -147,6 +127,14 @@ int main(int argc, char **argv)
 
 	vector<string> measurements;
 	vector<vector<string>> hash_table_measurements;
+
+	/*== first line of the query file contains the Radius*/
+	getline(queryfile, line);
+	
+	double R;
+	std::istringstream Rstream(line);
+	Rstream >> line >> R;
+
 	while(getline(queryfile, line))
 	{
 		istringstream iss(line);
@@ -169,9 +157,7 @@ int main(int argc, char **argv)
 		/*== Range Search*/
 		outputfile << "R-near neighbours:" << endl;
 		for(i=0; i<L; i++)
-			hash_tableptr[i]->RS(point, outputfile, 1, 200);
-
-		/*== Real Range Search*/
+			hash_tableptr[i]->RS(point, outputfile, C, R);
 
 		/*== Approximate Nearest Neighbour*/
 		outputfile << "LSH Neighbour: ";

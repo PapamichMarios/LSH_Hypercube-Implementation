@@ -54,7 +54,7 @@ class HashTable
 
 		virtual std::vector<std::string> ANN(const K &query) =0;
 		virtual std::vector<std::string> NN(const K &query) =0;
-		virtual void RS (const K &query,std::ofstream& outputfile, int c, int R) =0;
+		virtual void RS (const K &query,std::ofstream& outputfile, int c, double R) =0;
 };
 
 template <typename K>
@@ -82,7 +82,7 @@ class HashTable_EUC : public HashTable<K>
         	HashNode<K> *entry = this->table[hash_val];
 			std::string G;
 
-        	while (entry != NULL && entry->getKey() != key) 
+        	while (entry != NULL) 
 			{
             	prev = entry;
             	entry = entry->getNext();
@@ -170,7 +170,7 @@ class HashTable_EUC : public HashTable<K>
 			double min_distance = INT_MAX;
 			std::string identifier = "NONE";
 			double distance=0;
-			clock_t end_time = clock();
+			clock_t end_time;
 
 			int hash_val		= hash_function->hashValue(query, this->tableSize);
 			std::string G		= hash_function->computeG(query);
@@ -215,7 +215,7 @@ class HashTable_EUC : public HashTable<K>
 			return measurements;
 		}
 
-		void RS(const K &query, std::ofstream& outputfile, int c, int R)
+		void RS(const K &query, std::ofstream& outputfile, int c, double R)
 		{
 			std::vector<double> distance_list;
 			std::vector<std::string> identifier_list;
@@ -237,6 +237,7 @@ class HashTable_EUC : public HashTable<K>
 			
 				/*== if they match calculate the distance*/
 				distance = help_functions::euclidean_distance(query, temp->getKey());
+	
 				if(distance<c*R)
 				{
 					distance_list.push_back(distance);
@@ -278,7 +279,7 @@ class HashTable_COS : public HashTable<K>
         	HashNode<K> *prev = NULL;
         	HashNode<K> *entry = this->table[hash_val];
 
-        	while (entry != NULL && entry->getKey() != key) 
+        	while (entry != NULL) 
 			{
             	prev = entry;
             	entry = entry->getNext();
@@ -323,7 +324,7 @@ class HashTable_COS : public HashTable<K>
 				while( temp != NULL )
 				{
 					/*== calculate distance*/
-					distance = help_functions::euclidean_distance(query, temp->getKey());
+					distance = help_functions::cosine_distance(query, temp->getKey());
 					
 					if(distance < min_distance)
 					{
@@ -366,7 +367,7 @@ class HashTable_COS : public HashTable<K>
 			while( temp != NULL )
 			{
 				/*== calculate the distance*/
-				distance = help_functions::euclidean_distance(query, temp->getKey());
+				distance = help_functions::cosine_distance(query, temp->getKey());
 	
 				if(distance < min_distance)
 				{
@@ -392,7 +393,7 @@ class HashTable_COS : public HashTable<K>
 			return measurements;
 		}
 
-		void RS(const K &query, std::ofstream& outputfile, int c, int R)
+		void RS(const K &query, std::ofstream& outputfile, int c, double R)
 		{
 			std::vector<double> distance_list;
 			std::vector<std::string> identifier_list;
@@ -405,7 +406,7 @@ class HashTable_COS : public HashTable<K>
 			while( temp != NULL )
 			{
 				/*== calculate the distance*/
-				distance = help_functions::euclidean_distance(query, temp->getKey());
+				distance = help_functions::cosine_distance(query, temp->getKey());
 				if(distance<c*R)
 				{
 					distance_list.push_back(distance);

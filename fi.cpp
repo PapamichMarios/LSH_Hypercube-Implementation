@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <climits>
 #include <string>
+#include <cmath>
 
 #include "fi.h"
 #include "hyperplane.h"
@@ -74,8 +75,6 @@ int fi::hashValue(vector<double> p, int table_size)
 	{
 		sum[i] = 0;
 		sum[i] = h_array[i]->computeH(p);
-
-		//cout<<"h" << i << ": " << sum[i] << endl;
 	}
 
 	for(i=0; i<this->k; i++)
@@ -109,8 +108,17 @@ int fi::hashValue(vector<double> p, int table_size)
 	if( hash_val < 0 )
 		hash_val = table_size + hash_val;
 
-	//cout<<hash_val<<endl;
 	return (int)hash_val;
+}
+
+int fi::cubeValue(vector<double> x)
+{
+	string hash_val;
+
+	for(int i=0; i<this->k; i++)
+		hash_val += to_string(abs(h_array[i]->computeH(x) % 2));
+
+	return stoi(hash_val, nullptr, 2);
 }
 
 string fi::computeG(vector<double> p)
