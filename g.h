@@ -16,5 +16,7 @@ class G
 
 		Hyperplane_COS ** getH_array();
 		int hashValue(std::vector<double> p);
+
+		long long int memory_used();
 };
 #endif

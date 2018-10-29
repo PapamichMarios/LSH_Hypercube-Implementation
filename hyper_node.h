@@ -37,6 +37,16 @@ class HyperNode
 			this->next = next;
 		}
 		
+		long long int memory_used(int dim)
+		{
+			long long int memory=0;
+
+			memory += sizeof(this->next);
+			memory += sizeof(this->id);
+			memory += dim * sizeof(this->point[0]);
+
+			return memory;
+		}
 };
 #endif
 

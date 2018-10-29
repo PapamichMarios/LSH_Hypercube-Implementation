@@ -9,7 +9,7 @@
 #include "hyperplane.h"
 #include "help_functions.h"
 
-#define W 300 
+#define W 400 
 
 using namespace std;
 using namespace help_functions;
@@ -103,4 +103,22 @@ int Hyperplane_COS::computeH(vector<double> p)
 		return 1;
 	
 	return 0;
+}
+
+long long int Hyperplane_EUC::memory_used(int dim)
+{
+	long long int memory=0;
+
+	memory += sizeof(this->w);
+	memory += sizeof(this->t);
+	memory += dim * sizeof(*this->v);
+
+	return memory;
+}
+
+long long int Hyperplane_COS::memory_used(int dim)
+{
+	long long int memory=0;
+
+	return memory += dim * sizeof(*this->v);
 }

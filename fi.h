@@ -21,5 +21,6 @@ class fi
 		int cubeValue(std::vector<double> x);
 
 		std::string computeG(std::vector<double> p);
+		long long int memory_used();
 };
 #endif

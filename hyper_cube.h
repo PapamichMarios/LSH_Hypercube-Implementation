@@ -18,12 +18,14 @@ class HyperCube
 	protected:
 		int tableSize;
 		HyperNode<K> ** table;
+		int points;
 
 	public:
 		HyperCube(int tableSize,int k)
 		{
 			this->table = new HyperNode<K> * [tableSize]();
 			this->tableSize = tableSize;	
+			this->points = 0;
 		}
 
 		virtual ~HyperCube()
@@ -53,6 +55,7 @@ class HyperCube
 		virtual void ANN(const K &query, std::ofstream& outputfile, int probes, int M, double &distance_ANN, double &time_ANN) =0;
 		virtual void NN(const K &query, std::ofstream& outputfile, double &distance_NN) =0;
 		virtual void RS (const K &query,std::ofstream& outputfile, int c, double R, int probes, int M) =0;
+		virtual long long int memory_used(int dim)=0;
 };
 
 template <typename K>
@@ -89,6 +92,7 @@ class HyperCube_EUC : public HyperCube<K>
         	if (entry == NULL) 
 			{
             	entry = new HyperNode<K>(key, identifier);
+				this->points++;
 
             	if (prev == NULL) 
 				{
@@ -274,6 +278,25 @@ class HyperCube_EUC : public HyperCube<K>
 			for(unsigned int i=0; i<distance_list.size(); i++)
 				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
 		}
+
+		long long int memory_used(int dim)
+		{
+			long long int memory=0;
+
+			memory += sizeof(this->tableSize);
+			memory += sizeof(this->points);
+			memory += this->cube_function->memory_used();
+
+			HyperNode<K> * temp = this->table[0];
+			int i=0;
+			while(temp==NULL)
+			{
+				++i;
+				temp = this->table[i];
+			}
+
+			return memory += temp->memory_used(dim) * this->points;
+		}
 };
 
 template <typename K>
@@ -310,6 +333,7 @@ class HyperCube_COS : public HyperCube<K>
         	if (entry == NULL) 
 			{
             	entry = new HyperNode<K>(key, identifier);
+				this->points++;
 
             	if (prev == NULL) 
 				{
@@ -493,6 +517,25 @@ class HyperCube_COS : public HyperCube<K>
 			/*== print neighbours*/
 			for(unsigned int i=0; i<distance_list.size(); i++)
 				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
+		}
+
+		long long int memory_used(int dim)
+		{
+			long long int memory=0;
+
+			memory += sizeof(this->tableSize);
+			memory += sizeof(this->points);
+			memory += this->cube_function->memory_used();
+
+			HyperNode<K> * temp = this->table[0];
+			int i=0;
+			while(temp==NULL)
+			{
+				++i;
+				temp = this->table[i];
+			}
+
+			return memory += temp->memory_used(dim) * this->points;
 		}
 };
 #endif

@@ -16,7 +16,7 @@ class Hyperplane
 		double* getVector();
 
 		virtual int computeH(std::vector<double> p) = 0;
-
+		virtual long long int memory_used(int dim)=0;
 };
 
 class Hyperplane_EUC : public Hyperplane
@@ -34,7 +34,7 @@ class Hyperplane_EUC : public Hyperplane
 
 		void printHyperplane(int dim);
 		int computeH(std::vector<double> p);
-		
+		long long int memory_used(int dim);
 };
 
 class Hyperplane_COS : public Hyperplane
@@ -44,6 +44,7 @@ class Hyperplane_COS : public Hyperplane
 		~Hyperplane_COS();
 
 		int computeH(std::vector<double> p);
+		long long int memory_used(int dim);
 };
 		
 		

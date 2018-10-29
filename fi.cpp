@@ -138,3 +138,16 @@ string fi::computeG(vector<double> p)
 
 	return G;
 }
+
+long long int fi::memory_used()
+{
+	long long int memory=0;
+
+	memory += sizeof(this->k);
+	memory += sizeof(this->dim);
+	/*== r_array*/
+	memory += this->k * sizeof(int);
+	memory += this->k * h_array[0]->memory_used(this->dim);
+
+	return memory;
+}

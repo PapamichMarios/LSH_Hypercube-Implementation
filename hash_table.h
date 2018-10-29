@@ -19,6 +19,7 @@ class HashTable
 	protected:
     	HashNode<K> **table;
 		int tableSize;
+		int buckets;
 
 	public:
 		HashTable(int tableSize, int k, int dim)
@@ -27,6 +28,7 @@ class HashTable
 			this->table = new HashNode<K> *[tableSize]();
 
 			this->tableSize = tableSize;
+			this->buckets = 0;
 		}
 	
 		virtual ~HashTable()
@@ -56,6 +58,8 @@ class HashTable
 		virtual std::vector<std::string> ANN(const K &query, double &distance_ANN, double & time_ANN) =0;
 		virtual std::vector<std::string> NN(const K &query, double &distance_NN) =0;
 		virtual void RS (const K &query, int c, double R, std::map<std::string, double> &dist_map) =0;
+
+		virtual long long int memory_used(int dim)=0;
 };
 
 template <typename K>
@@ -81,7 +85,6 @@ class HashTable_EUC : public HashTable<K>
         	int hash_val = hash_function->hashValue(key, this->tableSize);
         	HashNode<K> *prev = NULL;
         	HashNode<K> *entry = this->table[hash_val];
-			std::string G;
 
         	while (entry != NULL) 
 			{
@@ -91,8 +94,9 @@ class HashTable_EUC : public HashTable<K>
 
         	if (entry == NULL) 
 			{
-				G = hash_function->computeG(key);
+				std::string G = hash_function->computeG(key);
             	entry = new HashNode<K>(key, G, identifier);
+				this->buckets++;
 
             	if (prev == NULL) 
 				{
@@ -116,7 +120,6 @@ class HashTable_EUC : public HashTable<K>
 			double min_distance = INT_MAX;
 			std::string identifier = "NONE";
 
-			std::string G = hash_function->computeG(query);
 			const clock_t begin_time = clock();
 
 			/*== start iterating through the hash table*/
@@ -128,13 +131,6 @@ class HashTable_EUC : public HashTable<K>
 				/*== iterate through every node in the bucket*/
 				while( temp != NULL )
 				{
-					/*== compare the g(query) with the g(point)*/
-					if( G != temp->getG() )
-					{
-						temp = temp->getNext();
-						continue;
-					}
-
 					/*== if they match calculate distance*/
 					distance = help_functions::euclidean_distance(query, temp->getKey());
 					
@@ -254,6 +250,26 @@ class HashTable_EUC : public HashTable<K>
 			}	
 		}
 
+		long long int memory_used(int dim)
+		{
+			long long int memory=0;
+
+			memory += sizeof(this->tableSize);
+			memory += sizeof(this->buckets);
+			memory += this->hash_function->memory_used();
+
+			HashNode<K> * temp = this->table[0];
+			int i=0;
+			/*== iterate to find a bucket that has something in it*/
+			while( temp == NULL)
+			{
+				++i;
+				temp = this->table[i];
+			}
+
+			return memory += this->buckets * temp->memory_used(dim);
+		}
+
 };
 
 template <typename K>
@@ -289,6 +305,7 @@ class HashTable_COS : public HashTable<K>
         	if (entry == NULL) 
 			{
             	entry = new HashNode<K>(key, std::to_string(hash_val), identifier);
+				this->buckets++;
 
             	if (prev == NULL) 
 				{
@@ -422,6 +439,26 @@ class HashTable_COS : public HashTable<K>
 				/*== iterate to the next node*/
 				temp = temp->getNext();	
 			}	
+		}
+		
+		long long int memory_used(int dim)
+		{
+			long long int memory=0;
+
+			memory += sizeof(this->tableSize);
+			memory += sizeof(this->buckets);
+			memory += this->hash_function->memory_used();
+
+			HashNode<K> * temp = this->table[0];
+			int i=0;
+			/*== iterate to find a bucket that has something in it*/
+			while( temp == NULL)
+			{
+				++i;
+				temp = this->table[i];
+			}
+
+			return memory += this->buckets * temp->memory_used(dim);
 		}
 };
 

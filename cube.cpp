@@ -22,8 +22,12 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	int opt;
-	int k, M, probes;	
-	int inputFileIndex, queryFileIndex, outputFileIndex;
+	int k = 3;
+	int M = 10;
+	int probes = 2;	
+	int inputFileIndex , inputFileFlag  = 0;
+	int queryFileIndex , queryFileFlag  = 0;
+	int outputFileIndex, outputFileFlag = 0;
 
 	/*== struct for getopt long options*/
 	static struct option long_options[] = 
@@ -43,9 +47,11 @@ int main(int argc, char **argv)
 		{
 			case 'd':
 				inputFileIndex = optind-1;
+				inputFileFlag = 1;
 				break;
 			case 'q':
 				queryFileIndex = optind-1;
+				queryFileFlag = 1;
 				break;
 			/*== dimensions (d')*/
 			case 'k':
@@ -57,25 +63,43 @@ int main(int argc, char **argv)
 				break;
 			case 'o':
 				outputFileIndex = optind-1;
+				outputFileFlag = 1;
 				break;
 			/*== max number of buckets searched*/
 			case 'p':
 				probes = atoi(optarg);
 				break;
-			default: 
-				fprintf(stderr, "Usage: $./cube –d <input file> –q <query file> –k <int> -M <int> -probes <int> -ο <output file>\n");
+			case '?':
+				cout << "Invalid option" << endl;
 				exit(EXIT_FAILURE);
 		}
     }
 
-	/*== check if user entered all arguments*/
-	if( argc != 13 )
+
+	/*== open input file*/
+	ifstream infile;
+	if( inputFileFlag )
 	{
-		fprintf(stderr, "Usage: $./cube –d <input file> –q <query file> –k <int> -M <int> -probes <int> -ο <output file>\n");
-		exit(EXIT_FAILURE);
+		infile.open(argv[inputFileIndex]);
+		if(!infile.is_open())
+		{
+			cout << "Wrong input file given." << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		string input;
+
+		while(!infile.is_open())
+		{
+			cout << "Please enter a valid input file: ";
+			cin >> input;
+
+			infile.open(input);
+		}
 	}
 
-	ifstream infile(argv[inputFileIndex]);
 	string line, coord;
 
 	/*== find out how many dimensions a point is*/
@@ -120,9 +144,56 @@ int main(int argc, char **argv)
 		hyper_cubeptr->put(point, identifier);
 	}
 
-	/*== start searching query points*/
-	ifstream queryfile(argv[queryFileIndex]);
-	ofstream outputfile(argv[outputFileIndex]);
+	/*== open query file*/
+	ifstream queryfile;
+	if( queryFileFlag )
+	{
+		queryfile.open(argv[queryFileIndex]);
+		if(!queryfile.is_open())
+		{
+			cout << "Wrong query file given." << endl;
+			exit(EXIT_FAILURE);
+		}
+
+	}
+	else
+	{
+		string input;
+
+		while(!queryfile.is_open())
+		{
+			cout << "Please enter a valid query file: ";
+			cin >> input;
+
+			queryfile.open(input);
+		}
+
+	}
+
+	/*== open output file*/
+	ofstream outputfile;
+	if(outputFileFlag)
+	{
+		outputfile.open(argv[outputFileIndex]);
+		if(!outputfile.is_open())
+		{
+			cout << "Wrong outputfile given." << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		string output;
+		
+		while(!outputfile.is_open())
+		{
+			cout << "Please enter an output file: ";
+			cin >> output;
+
+			outputfile.open(output);
+		}
+	}
+
 
 	double distance_NN, distance_ANN, time_ANN;
 	double approaching_factor=0;
@@ -185,6 +256,7 @@ int main(int argc, char **argv)
 
 	outputfile << "Approaching factor: " << approaching_factor << endl;
 	outputfile << "Average time ANN: " << average_time_ANN << endl;
+	outputfile << "Memory used: " << hyper_cubeptr->memory_used(dimensions) << endl;
 
 	/*== free hypercube*/
 	delete hyper_cubeptr;

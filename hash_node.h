@@ -43,5 +43,16 @@ class HashNode
 			this->next = next;
 		}
 
+		long long int memory_used(int dim)
+		{
+			long long int memory=0;
+
+			memory += sizeof(this->G);
+			memory += sizeof(this->next);
+			memory += sizeof(this->id);
+			memory += dim * sizeof(this->key[0]);
+
+			return memory;
+		}
 };
 #endif

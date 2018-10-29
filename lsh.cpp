@@ -22,8 +22,11 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	int opt;
-	int k, L;	
-	int inputFileIndex, queryFileIndex, outputFileIndex;
+	int k = 4;
+	int L = 5;	
+	int inputFileIndex , inputFileFlag  = 0;
+	int queryFileIndex , queryFileFlag  = 0;
+	int outputFileIndex, outputFileFlag = 0;
 
 	int i;
 	HashTable<vector<double>> ** hash_tableptr;
@@ -36,9 +39,11 @@ int main(int argc, char **argv)
 		{
 			case 'd':
 				inputFileIndex = optind-1;
+				inputFileFlag = 1; 
 				break;
 			case 'q':
 				queryFileIndex = optind-1;
+				queryFileFlag = 1;
 				break;
 			case 'k':
 				k = atoi(optarg);
@@ -48,22 +53,39 @@ int main(int argc, char **argv)
 				break;
 			case 'o':
 				outputFileIndex = optind-1;
+				outputFileFlag = 1;
 				break;
-			default: 
-				fprintf(stderr, "Usage: ./lsh –d <input file> –q <query file> –k <int> -L <int> -ο <output file>\n");
+			case '?':
+				cout << "Invalid option" << endl;
 				exit(EXIT_FAILURE);
 		}
     }
 
 
-	/*== check if user entered all arguments*/
-	if( argc != 11)
+	/*== open input file*/
+	ifstream infile;
+	if( inputFileFlag )
 	{
-		fprintf(stderr, "Usage: ./lsh –d <input file> –q <query file> –k <int> -L <int> -ο <output file>\n");
-		exit(EXIT_FAILURE);
+		infile.open(argv[inputFileIndex]);
+		if(!infile.is_open())
+		{
+			cout << "Wrong input file given." << endl;
+			exit(EXIT_FAILURE);
+		}
 	}
-	
-	ifstream infile(argv[inputFileIndex]);
+	else
+	{
+		string input;
+
+		while(!infile.is_open())
+		{
+			cout << "Please enter a valid input file: ";
+			cin >> input;
+
+			infile.open(input);
+		}
+	}
+		
 	string line, coord;
 
 	/*== find out if we want euclidean or cosine*/
@@ -118,11 +140,58 @@ int main(int argc, char **argv)
 			hash_tableptr[i]->put(point, identifier);
 	}
 	
+	/*== open query file*/
+	ifstream queryfile;
+	if( queryFileFlag )
+	{
+		queryfile.open(argv[queryFileIndex]);
+		if(!queryfile.is_open())
+		{
+			cout << "Wrong query file given." << endl;
+			exit(EXIT_FAILURE);
+		}
+
+	}
+	else
+	{
+		string input;
+
+		while(!queryfile.is_open())
+		{
+			cout << "Please enter a valid query file: ";
+			cin >> input;
+
+			queryfile.open(input);
+		}
+
+	}
+
+	/*== open output file*/
+	ofstream outputfile;
+	if(outputFileFlag)
+	{
+		outputfile.open(argv[outputFileIndex]);
+		if(!outputfile.is_open())
+		{
+			cout << "Wrong outputfile given." << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		string output;
+		
+		while(!outputfile.is_open())
+		{
+			cout << "Please enter an output file: ";
+			cin >> output;
+
+			outputfile.open(output);
+		}
+	}
+
 
 	/*== get each vector from query file*/
-	ifstream queryfile(argv[queryFileIndex]);
-	ofstream outputfile(argv[outputFileIndex]);
-
 	vector<string> measurements(3);
 	vector<vector<string>> hash_table_measurements(L);
 	map<string, double> dist_map;
@@ -202,6 +271,7 @@ int main(int argc, char **argv)
 
 	outputfile << "Approaching factor: " << approaching_factor << endl;
 	outputfile << "Average time ANN: " << average_time_ANN << endl;
+	outputfile << "Memory used: " << L * hash_tableptr[0]->memory_used(dimensions) << endl;
 
 	/*== free hash_tables*/
 	for(i=0; i<L; i++)
