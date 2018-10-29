@@ -245,12 +245,8 @@ int main(int argc, char **argv)
 
 		/*== Nearest Neighbour*/
 		outputfile << "Nearest neighbour: ";
-		for(i=0; i<L; i++)
-		{
-			measurements = hash_tableptr[i]->NN(point, distance_NN);
-			hash_table_measurements[i] = measurements;
-		}
-		help_functions::print_NN(hash_table_measurements, outputfile);
+		hash_tableptr[0]->NN(point, outputfile, distance_NN);
+
 		outputfile << endl;
 
 		if( distance_ANN/distance_NN > approaching_factor )

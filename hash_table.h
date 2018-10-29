@@ -56,7 +56,7 @@ class HashTable
     	virtual void put(const K &key, std::string identifier) =0;
 
 		virtual std::vector<std::string> ANN(const K &query, double &distance_ANN, double & time_ANN) =0;
-		virtual std::vector<std::string> NN(const K &query, double &distance_NN) =0;
+		virtual void NN(const K &query, std::ofstream &outputfile, double &distance_NN) =0;
 		virtual void RS (const K &query, int c, double R, std::map<std::string, double> &dist_map) =0;
 
 		virtual long long int memory_used(int dim)=0;
@@ -111,7 +111,7 @@ class HashTable_EUC : public HashTable<K>
     	}
 
 		/*== Neighbour functions*/
-		std::vector<std::string> NN(const K &query, double &distance_NN)
+		void NN(const K &query, std::ofstream &outputfile, double &distance_NN)
 		{
 			double distance;
 			HashNode<K> * temp = NULL;
@@ -147,21 +147,11 @@ class HashTable_EUC : public HashTable<K>
 			
 			end_time = clock();
 
-			/*== save measurements into a vector of size 3
-				 0: distance
-				 1: identifier
-				 2: time
-			  == */
+			distance_NN = min_distance;
 
-			if( min_distance < distance_NN )
-				distance_NN = min_distance;
-
-			std::vector<std::string> measurements(3);
-			measurements[0] = std::to_string(min_distance);
-			measurements[1] = identifier;
-			measurements[2] = std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC);
-
-			return measurements;
+			outputfile << identifier << std::endl;
+			outputfile << "distanceTrue: " << min_distance << std::endl;
+			outputfile << "tTrue: " << double(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
 		}
 
 		std::vector<std::string> ANN(const K &query, double &distance_ANN, double &time_ANN)
@@ -321,7 +311,7 @@ class HashTable_COS : public HashTable<K>
 		}
 
 		/*== Neighbour functions*/
-		std::vector<std::string> NN(const K &query, double &distance_NN)
+		void NN(const K &query,std::ofstream &outputfile, double &distance_NN)
 		{
 			double distance;
 			HashNode<K> * temp = NULL;
@@ -355,21 +345,11 @@ class HashTable_COS : public HashTable<K>
 			}
 			end_time = clock();
 
-			/*== save measurements into a vector of size 3
-				 0: distance
-				 1: identifier
-				 2: time
-			  == */
-			
-			if(min_distance < distance_NN)
-				distance_NN = min_distance;
+			distance_NN = min_distance;
 
-			std::vector<std::string> measurements(3);
-			measurements[0] = std::to_string(min_distance);
-			measurements[1] = identifier;
-			measurements[2] = std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC);
-
-			return measurements;
+			outputfile << identifier << std::endl;
+			outputfile << "distanceTrue: " << min_distance << std::endl;
+			outputfile << "tTrue: " << double(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl;
 		}
 
 		std::vector<std::string> ANN(const K &query, double &distance_ANN, double &time_ANN)
