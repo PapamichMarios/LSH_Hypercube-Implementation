@@ -42,7 +42,7 @@ fi::fi(int k, int dim)
 	/*== constructing the rs*/
 	std::random_device rd;
 	std::default_random_engine generator(rd());
-	std::uniform_int_distribution<int> distribution(0, 100);
+	std::uniform_int_distribution<int> distribution(-50, 50);
 	
 	this->r_array = new int[k];
 	for(i=0; i<k; i++)

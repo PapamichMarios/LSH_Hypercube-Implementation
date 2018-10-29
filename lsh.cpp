@@ -125,8 +125,15 @@ int main(int argc, char **argv)
 
 	vector<string> measurements(3);
 	vector<vector<string>> hash_table_measurements(L);
-
 	map<string, double> dist_map;
+
+	double distance_NN = INT_MAX, distance_ANN = INT_MAX, time_ANN;
+	double approaching_factor=0;
+	double average_time_ANN=0;
+
+
+	/*== save how many queries we have to search*/
+	int querySize = help_functions::count_lines_query(queryfile, type);
 
 	/*== first line of the query file contains the Radius*/
 	getline(queryfile, line);
@@ -155,14 +162,14 @@ int main(int argc, char **argv)
 		/*== Range Search*/
 		outputfile << "R-near neighbours:" << endl;
 		for(i=0; i<L; i++)
-			hash_tableptr[i]->RS(point, outputfile, C, R, dist_map);
+			hash_tableptr[i]->RS(point, C, R, dist_map);
 		help_functions::print_RS(dist_map, outputfile);
 
 		/*== Approximate Nearest Neighbour*/
 		outputfile << "LSH Neighbour: ";
 		for(i=0; i<L; i++)
 		{
-			measurements = hash_tableptr[i]->ANN(point);
+			measurements = hash_tableptr[i]->ANN(point, distance_ANN, time_ANN);
 			hash_table_measurements[i] = measurements;
 		}
 		help_functions::print_ANN(hash_table_measurements, outputfile);
@@ -171,17 +178,32 @@ int main(int argc, char **argv)
 		outputfile << "Nearest neighbour: ";
 		for(i=0; i<L; i++)
 		{
-			measurements = hash_tableptr[i]->NN(point);
+			measurements = hash_tableptr[i]->NN(point, distance_NN);
 			hash_table_measurements[i] = measurements;
 		}
 		help_functions::print_NN(hash_table_measurements, outputfile);
 		outputfile << endl;
 
+		if( distance_ANN/distance_NN > approaching_factor )
+			approaching_factor = distance_ANN/distance_NN;
+
+		average_time_ANN += time_ANN;
+
 		/*== clear map for next iteration*/
 		dist_map.clear();
+
+		/*== reset distances for next loop*/
+		distance_ANN = INT_MAX;
+		distance_NN  = INT_MAX;
 	}
 
-	/*== free memory*/
+	/*== print average time && approaching factor*/
+	average_time_ANN /= querySize;
+
+	outputfile << "Approaching factor: " << approaching_factor << endl;
+	outputfile << "Average time ANN: " << average_time_ANN << endl;
+
+	/*== free hash_tables*/
 	for(i=0; i<L; i++)
 	{
 		delete hash_tableptr[i];

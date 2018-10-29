@@ -138,6 +138,21 @@ namespace help_functions
 		return dimensions;
 	}
 
+	inline int count_lines_query(std::ifstream& infile, std::string type)
+	{
+		int lines_counted = 0;
+		std::string line;
+
+		getline(infile, line);
+		while(getline(infile, line))	
+			++lines_counted;
+
+		infile.clear();
+		infile.seekg(0, std::ios::beg);
+
+		return lines_counted;
+	}
+
 	inline int calculate_tableSize(std::ifstream& infile, std::string type, int k)
 	{
 		std::string line;

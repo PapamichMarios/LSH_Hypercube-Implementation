@@ -53,9 +53,9 @@ class HashTable
 		
     	virtual void put(const K &key, std::string identifier) =0;
 
-		virtual std::vector<std::string> ANN(const K &query) =0;
-		virtual std::vector<std::string> NN(const K &query) =0;
-		virtual void RS (const K &query,std::ofstream& outputfile, int c, double R, std::map<std::string, double> &dist_map) =0;
+		virtual std::vector<std::string> ANN(const K &query, double &distance_ANN, double & time_ANN) =0;
+		virtual std::vector<std::string> NN(const K &query, double &distance_NN) =0;
+		virtual void RS (const K &query, int c, double R, std::map<std::string, double> &dist_map) =0;
 };
 
 template <typename K>
@@ -107,7 +107,7 @@ class HashTable_EUC : public HashTable<K>
     	}
 
 		/*== Neighbour functions*/
-		std::vector<std::string> NN(const K &query)
+		std::vector<std::string> NN(const K &query, double &distance_NN)
 		{
 			double distance;
 			HashNode<K> * temp = NULL;
@@ -157,6 +157,9 @@ class HashTable_EUC : public HashTable<K>
 				 2: time
 			  == */
 
+			if( min_distance < distance_NN )
+				distance_NN = min_distance;
+
 			std::vector<std::string> measurements(3);
 			measurements[0] = std::to_string(min_distance);
 			measurements[1] = identifier;
@@ -165,7 +168,7 @@ class HashTable_EUC : public HashTable<K>
 			return measurements;
 		}
 
-		std::vector<std::string> ANN(const K &query)
+		std::vector<std::string> ANN(const K &query, double &distance_ANN, double &time_ANN)
 		{
 			double min_distance = INT_MAX;
 			std::string identifier = "NONE";
@@ -208,6 +211,12 @@ class HashTable_EUC : public HashTable<K>
 				 2: time
 			  == */
 
+			if(min_distance < distance_ANN)
+			{
+				distance_ANN = min_distance;
+				time_ANN = double(end_time - begin_time) / CLOCKS_PER_SEC;
+			}
+
 			std::vector<std::string> measurements(3);
 			measurements[0] = std::to_string(min_distance);
 			measurements[1] = identifier;
@@ -216,7 +225,7 @@ class HashTable_EUC : public HashTable<K>
 			return measurements;
 		}
 
-		void RS(const K &query, std::ofstream& outputfile, int c, double R, std::map<std::string, double> &dist_map)
+		void RS(const K &query, int c, double R, std::map<std::string, double> &dist_map)
 		{
 			double distance=0;
 
@@ -295,7 +304,7 @@ class HashTable_COS : public HashTable<K>
 		}
 
 		/*== Neighbour functions*/
-		std::vector<std::string> NN(const K &query)
+		std::vector<std::string> NN(const K &query, double &distance_NN)
 		{
 			double distance;
 			HashNode<K> * temp = NULL;
@@ -335,6 +344,9 @@ class HashTable_COS : public HashTable<K>
 				 2: time
 			  == */
 			
+			if(min_distance < distance_NN)
+				distance_NN = min_distance;
+
 			std::vector<std::string> measurements(3);
 			measurements[0] = std::to_string(min_distance);
 			measurements[1] = identifier;
@@ -343,7 +355,7 @@ class HashTable_COS : public HashTable<K>
 			return measurements;
 		}
 
-		std::vector<std::string> ANN(const K &query)
+		std::vector<std::string> ANN(const K &query, double &distance_ANN, double &time_ANN)
 		{
 			double distance=0;
 			double min_distance = INT_MAX;
@@ -377,6 +389,12 @@ class HashTable_COS : public HashTable<K>
 				 2: time
 			  == */
 
+			if(min_distance < distance_ANN)
+			{
+				distance_ANN = min_distance;
+				time_ANN = double(end_time - begin_time) / CLOCKS_PER_SEC;
+			}
+
 			std::vector<std::string> measurements(3);
 			measurements[0] = std::to_string(min_distance);
 			measurements[1] = identifier;
@@ -385,7 +403,7 @@ class HashTable_COS : public HashTable<K>
 			return measurements;
 		}
 
-		void RS(const K &query, std::ofstream& outputfile, int c, double R, std::map<std::string, double> &dist_map)
+		void RS(const K &query, int c, double R, std::map<std::string, double> &dist_map)
 		{
 			double distance=0;
 

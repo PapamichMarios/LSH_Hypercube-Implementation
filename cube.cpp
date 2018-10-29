@@ -124,6 +124,13 @@ int main(int argc, char **argv)
 	ifstream queryfile(argv[queryFileIndex]);
 	ofstream outputfile(argv[outputFileIndex]);
 
+	double distance_NN, distance_ANN, time_ANN;
+	double approaching_factor=0;
+	double average_time_ANN=0;
+
+	/*== save how many queries we have to search*/
+	int querySize = help_functions::count_lines_query(queryfile, type);
+
 	/*== first line of the query file contains the Radius*/
 	getline(queryfile, line);
 	
@@ -154,14 +161,30 @@ int main(int argc, char **argv)
 
 		/*== Approximate Nearest Neighbour*/
 		outputfile << "LSH Neighbour: ";
-		hyper_cubeptr->ANN(point, outputfile, probes, M);
+		hyper_cubeptr->ANN(point, outputfile, probes, M, distance_ANN, time_ANN);
 
 		/*== Nearest Neighbour*/
 		outputfile << "Nearest neighbour: ";
-		hyper_cubeptr->NN(point, outputfile);
+		hyper_cubeptr->NN(point, outputfile, distance_NN);
 
 		outputfile << endl;
+
+		if( distance_ANN/distance_NN > approaching_factor )
+			approaching_factor = distance_ANN/distance_NN;
+
+		average_time_ANN += time_ANN;
+
+		/*== reset for next loop*/
+		time_ANN = 0;
+		distance_ANN = 0;
+		distance_NN = 0;
 	}
+
+	/*== print average time && approaching factor*/
+	average_time_ANN /= querySize;
+
+	outputfile << "Approaching factor: " << approaching_factor << endl;
+	outputfile << "Average time ANN: " << average_time_ANN << endl;
 
 	/*== free hypercube*/
 	delete hyper_cubeptr;
