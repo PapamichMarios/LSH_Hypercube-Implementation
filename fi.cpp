@@ -51,7 +51,15 @@ fi::fi(int k, int dim)
 
 fi::~fi()
 {
-	
+	delete[] r_array;
+
+	for(int i=0; i<this->k; i++)
+	{
+		delete h_array[i];
+		h_array[i] = NULL;
+	}
+	delete[] h_array;
+		
 }
 /*================================ Rest of the functions*/
 Hyperplane_EUC ** fi::getH_array()

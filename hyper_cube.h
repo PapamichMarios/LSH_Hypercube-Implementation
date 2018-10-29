@@ -28,7 +28,24 @@ class HyperCube
 
 		virtual ~HyperCube()
 		{
-			
+			/*== destroying all buckets*/
+			HyperNode<K> * temp = NULL;
+			HyperNode<K> * prev = NULL;
+
+			for(int i=0; i<this->tableSize; i++)
+			{
+				temp = table[i];
+				while(temp != NULL)
+				{
+					prev = temp;
+					temp = temp->getNext();
+					delete prev;
+				}
+
+				table[i] = NULL;
+			}
+
+			delete[] table;
 		}	
 
 		virtual void put(const K &point, std::string identifier) =0;
@@ -52,7 +69,8 @@ class HyperCube_EUC : public HyperCube<K>
 
 		~HyperCube_EUC()
 		{
-			
+			delete this->cube_function;
+			this->cube_function = NULL;	
 		}
 
 		void put(const K &key, std::string identifier)
@@ -267,7 +285,8 @@ class HyperCube_COS : public HyperCube<K>
 
 		~HyperCube_COS()
 		{
-			
+			delete this->cube_function;
+			this->cube_function = NULL;
 		}
 		
 		void put(const K &key, std::string identifier)

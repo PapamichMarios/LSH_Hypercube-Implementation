@@ -73,7 +73,7 @@ class HashTable_EUC : public HashTable<K>
 
 		~HashTable_EUC()
 		{
-			delete[] hash_function;
+			delete hash_function;
 		}
 
     	void put(const K &key, std::string identifier)
@@ -109,7 +109,6 @@ class HashTable_EUC : public HashTable<K>
 		/*== Neighbour functions*/
 		std::vector<std::string> NN(const K &query)
 		{
-			std::vector<std::string> measurements;
 			double distance;
 			HashNode<K> * temp = NULL;
 			clock_t end_time;
@@ -158,16 +157,16 @@ class HashTable_EUC : public HashTable<K>
 				 2: time
 			  == */
 
-			measurements.push_back(std::to_string(min_distance));
-			measurements.push_back(identifier);
-			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
+			std::vector<std::string> measurements(3);
+			measurements[0] = std::to_string(min_distance);
+			measurements[1] = identifier;
+			measurements[2] = std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC);
 
 			return measurements;
 		}
 
 		std::vector<std::string> ANN(const K &query)
 		{
-			std::vector<std::string> measurements;
 			double min_distance = INT_MAX;
 			std::string identifier = "NONE";
 			double distance=0;
@@ -209,9 +208,10 @@ class HashTable_EUC : public HashTable<K>
 				 2: time
 			  == */
 
-			measurements.push_back(std::to_string(min_distance));
-			measurements.push_back(identifier);
-			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
+			std::vector<std::string> measurements(3);
+			measurements[0] = std::to_string(min_distance);
+			measurements[1] = identifier;
+			measurements[2] = std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC);
 
 			return measurements;
 		}
@@ -238,11 +238,7 @@ class HashTable_EUC : public HashTable<K>
 				distance = help_functions::euclidean_distance(query, temp->getKey());
 	
 				if(distance<c*R)
-				{
 					dist_map[temp->getId()] = distance;
-					//distance_list.push_back(distance);
-					//identifier_list.push_back(temp->getId());
-				}	
 
 				/*== iterate to the next node*/
 				temp = temp->getNext();	
@@ -266,7 +262,7 @@ class HashTable_COS : public HashTable<K>
 
 		~HashTable_COS()
 		{
-			delete[] hash_function;
+			delete hash_function;
 		}
 
     	void put(const K &key, std::string identifier)
@@ -301,7 +297,6 @@ class HashTable_COS : public HashTable<K>
 		/*== Neighbour functions*/
 		std::vector<std::string> NN(const K &query)
 		{
-			std::vector<std::string> measurements;
 			double distance;
 			HashNode<K> * temp = NULL;
 			clock_t end_time;
@@ -339,17 +334,17 @@ class HashTable_COS : public HashTable<K>
 				 1: identifier
 				 2: time
 			  == */
-
-			measurements.push_back(std::to_string(min_distance));
-			measurements.push_back(identifier);
-			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
+			
+			std::vector<std::string> measurements(3);
+			measurements[0] = std::to_string(min_distance);
+			measurements[1] = identifier;
+			measurements[2] = std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC);
 
 			return measurements;
 		}
 
 		std::vector<std::string> ANN(const K &query)
 		{
-			std::vector<std::string> measurements;
 			double distance=0;
 			double min_distance = INT_MAX;
 			std::string identifier = "NONE";
@@ -382,9 +377,10 @@ class HashTable_COS : public HashTable<K>
 				 2: time
 			  == */
 
-			measurements.push_back(std::to_string(min_distance));
-			measurements.push_back(identifier);
-			measurements.push_back(std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC));
+			std::vector<std::string> measurements(3);
+			measurements[0] = std::to_string(min_distance);
+			measurements[1] = identifier;
+			measurements[2] = std::to_string(float(end_time - begin_time) / CLOCKS_PER_SEC);
 
 			return measurements;
 		}
@@ -403,11 +399,7 @@ class HashTable_COS : public HashTable<K>
 				distance = help_functions::cosine_distance(query, temp->getKey());
 
 				if(distance<c*R)
-				{
 					dist_map[temp->getId()] = distance;
-					//distance_list.push_back(distance);
-					//identifier_list.push_back(temp->getId());
-				}	
 
 				/*== iterate to the next node*/
 				temp = temp->getNext();	

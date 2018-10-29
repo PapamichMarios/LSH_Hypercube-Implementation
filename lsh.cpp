@@ -92,32 +92,30 @@ int main(int argc, char **argv)
 	}
 
 	/*== get each line from file - each line is a vector of size dim*/
-	vector<double> point;
+	vector<double> point(dimensions);
+	int j=0;
+
 	string identifier;
 	if( type == "COS" )
 		getline(infile, line);
 
 	while(getline(infile, line))
 	{
+		j=0;
 		istringstream iss(line);
 		/*== split the line into 128 coords which we save into a vector of size 128*/
 		getline(iss, identifier, ' ');
 		while(getline(iss, coord, ' '))
 		{
-			try {
-				point.push_back(stod(coord));
-			}
-			catch(const std::invalid_argument& ia){
-				continue;
-			}
+			if( j < dimensions )
+				point[j] = stod(coord);
+			
+			j++;
 		}
 		
-
 		/*== hash the vector point to our hash table*/
 		for(i=0; i<L; i++)
 			hash_tableptr[i]->put(point, identifier);
-		/*== clear vector for next iteration*/
-		point.clear();
 	}
 	
 
@@ -125,8 +123,9 @@ int main(int argc, char **argv)
 	ifstream queryfile(argv[queryFileIndex]);
 	ofstream outputfile(argv[outputFileIndex]);
 
-	vector<string> measurements;
-	vector<vector<string>> hash_table_measurements;
+	vector<string> measurements(3);
+	vector<vector<string>> hash_table_measurements(L);
+
 	map<string, double> dist_map;
 
 	/*== first line of the query file contains the Radius*/
@@ -138,20 +137,18 @@ int main(int argc, char **argv)
 
 	while(getline(queryfile, line))
 	{
+		j=0;
 		istringstream iss(line);
 		/*== split the line into 128 coords which we save into a vector of size 128*/
 		getline(iss, identifier, ' ');
 		while(getline(iss, coord, ' '))
 		{
-			try {
-				point.push_back(stod(coord));
-			}
-			catch(const std::invalid_argument& ia){
-				continue;
-			}
+			if( j < dimensions )
+				point[j] = stod(coord);
+
+			j++;
 		}
 		
-
 		/*== print id to file*/
 		outputfile << "Query: " << identifier << endl;
 
@@ -166,27 +163,36 @@ int main(int argc, char **argv)
 		for(i=0; i<L; i++)
 		{
 			measurements = hash_tableptr[i]->ANN(point);
-			hash_table_measurements.push_back(measurements);
+			hash_table_measurements[i] = measurements;
 		}
 		help_functions::print_ANN(hash_table_measurements, outputfile);
 
 		/*== Nearest Neighbour*/
-		hash_table_measurements.clear();
-
 		outputfile << "Nearest neighbour: ";
 		for(i=0; i<L; i++)
 		{
 			measurements = hash_tableptr[i]->NN(point);
-			hash_table_measurements.push_back(measurements);
+			hash_table_measurements[i] = measurements;
 		}
 		help_functions::print_NN(hash_table_measurements, outputfile);
 		outputfile << endl;
 
-		/*== clear vector for next iteration*/
-		point.clear();
-		hash_table_measurements.clear();
+		/*== clear map for next iteration*/
 		dist_map.clear();
 	}
+
+	/*== free memory*/
+	for(i=0; i<L; i++)
+	{
+		delete hash_tableptr[i];
+		hash_tableptr[i] = NULL;
+	}
+	delete[] hash_tableptr;
+
+	/*== close files*/
+	infile.close();
+	queryfile.close();
+	outputfile.close();
 
 	exit(EXIT_SUCCESS);
 }

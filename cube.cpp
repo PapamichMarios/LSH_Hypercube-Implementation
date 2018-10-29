@@ -95,7 +95,9 @@ int main(int argc, char **argv)
 		hyper_cubeptr = new HyperCube_COS<vector<double>>(tableSize, k, dimensions);
 
 	/*== get each line from input file - each line is a vector of size dim*/
-	vector<double> point;
+	vector<double> point(dimensions);
+	int j=0;
+
 	string identifier;
 	if( type == "COS" )
 		getline(infile, line);
@@ -103,23 +105,19 @@ int main(int argc, char **argv)
 	while(getline(infile, line))
 	{
 		istringstream iss(line);
+		j=0;
 		/*== split the line into 128 coords which we save into a vector of size 128*/
 		getline(iss, identifier, ' ');
 		while(getline(iss, coord, ' '))
 		{
-			try {
-				point.push_back(stod(coord));
-			}
-			catch(const std::invalid_argument& ia){
-				continue;
-			}
+			if(j<dimensions)
+				point[j] = stod(coord);
+
+			j++;
 		}
 		
 		/*== hash the vector point to our hypercube*/
 		hyper_cubeptr->put(point, identifier);
-
-		/*== clear vector for next iteration*/
-		point.clear();
 	}
 
 	/*== start searching query points*/
@@ -136,16 +134,15 @@ int main(int argc, char **argv)
 	while(getline(queryfile, line))
 	{
 		istringstream iss(line);
+		j=0;
 		/*== split the line into 128 coords which we save into a vector of size 128*/
 		getline(iss, identifier, ' ');
 		while(getline(iss, coord, ' '))
 		{
-			try {
-				point.push_back(stod(coord));
-			}
-			catch(const std::invalid_argument& ia){
-				continue;
-			}
+			if(j<dimensions)
+				point[j] = stod(coord);
+
+			j++;
 		}
 		
 		/*== print id to file*/
@@ -164,10 +161,16 @@ int main(int argc, char **argv)
 		hyper_cubeptr->NN(point, outputfile);
 
 		outputfile << endl;
-
-		/*== clear vector for next iteration*/
-		point.clear();
 	}
 
+	/*== free hypercube*/
+	delete hyper_cubeptr;
+	hyper_cubeptr = NULL;
+
+	/*== close files*/
+	infile.close();
+	queryfile.close();
+	outputfile.close();
+	
 	exit(EXIT_SUCCESS);
 }

@@ -24,7 +24,16 @@ G::G(int k, int dim)
 	}
 }
 
-G::~G(){}
+G::~G()
+{
+	for(int i=0; i<k; i++)
+	{
+		delete this->h_array[i];
+		this->h_array[i] = NULL;
+	}
+
+	delete[] this->h_array;
+}
 
 /*=============================== Rest of the funcs*/
 Hyperplane_COS ** G::getH_array()
