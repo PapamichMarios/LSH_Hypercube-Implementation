@@ -194,8 +194,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-
-	double distance_NN, distance_ANN, time_ANN;
+	double distance_NN, distance_ANN, time_ANN, time_NN;
+	string identifier_ANN;
 	double approaching_factor=0;
 	double average_time_ANN=0;
 
@@ -231,13 +231,13 @@ int main(int argc, char **argv)
 		hyper_cubeptr->RS(point, outputfile, C, R, probes, M);
 
 		/*== Approximate Nearest Neighbour*/
-		outputfile << "LSH Neighbour: ";
-		hyper_cubeptr->ANN(point, outputfile, probes, M, distance_ANN, time_ANN);
+		hyper_cubeptr->ANN(point, outputfile, probes, M, distance_ANN, time_ANN, identifier_ANN);
 
 		/*== Nearest Neighbour*/
-		outputfile << "Nearest neighbour: ";
-		hyper_cubeptr->NN(point, outputfile, distance_NN);
+		hyper_cubeptr->NN(point, outputfile, distance_NN, time_NN);
 
+		/*== print to outputfile*/
+		help_functions::print_NN_ANN_CUBE(outputfile, distance_ANN, time_ANN, distance_NN, time_NN, identifier_ANN);
 		outputfile << endl;
 
 		if( distance_ANN/distance_NN > approaching_factor )

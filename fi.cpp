@@ -31,7 +31,7 @@ fi::fi(int k, int dim)
 		{
 			cout << "potential conflict in hs, getting a new one" << endl;
 			i-=1;
-			free(this->h_array[i]);
+			delete this->h_array[i];
 			
 			continue;
 		}

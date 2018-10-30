@@ -192,7 +192,8 @@ int main(int argc, char **argv)
 
 
 	/*== get each vector from query file*/
-	vector<string> measurements(3);
+	vector<string> ANN_measurements(3);
+	vector<string> NN_measurements(2);
 	vector<vector<string>> hash_table_measurements(L);
 	map<string, double> dist_map;
 
@@ -235,18 +236,17 @@ int main(int argc, char **argv)
 		help_functions::print_RS(dist_map, outputfile);
 
 		/*== Approximate Nearest Neighbour*/
-		outputfile << "LSH Neighbour: ";
 		for(i=0; i<L; i++)
 		{
-			measurements = hash_tableptr[i]->ANN(point, distance_ANN, time_ANN);
-			hash_table_measurements[i] = measurements;
+			ANN_measurements = hash_tableptr[i]->ANN(point, distance_ANN, time_ANN);
+			hash_table_measurements[i] = ANN_measurements;
 		}
-		help_functions::print_ANN(hash_table_measurements, outputfile);
 
 		/*== Nearest Neighbour*/
-		outputfile << "Nearest neighbour: ";
-		hash_tableptr[0]->NN(point, outputfile, distance_NN);
+		NN_measurements = hash_tableptr[0]->NN(point, outputfile, distance_NN);
 
+		/*== print to file*/
+		help_functions::print_NN_ANN_LSH(outputfile, hash_table_measurements, NN_measurements); 
 		outputfile << endl;
 
 		if( distance_ANN/distance_NN > approaching_factor )

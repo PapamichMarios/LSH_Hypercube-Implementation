@@ -52,8 +52,8 @@ class HyperCube
 
 		virtual void put(const K &point, std::string identifier) =0;
 
-		virtual void ANN(const K &query, std::ofstream& outputfile, int probes, int M, double &distance_ANN, double &time_ANN) =0;
-		virtual void NN(const K &query, std::ofstream& outputfile, double &distance_NN) =0;
+		virtual void ANN(const K &query, std::ofstream& outputfile, int probes, int M, double &distance_ANN, double &time_ANN, std::string &identifier_ANN) =0;
+		virtual void NN(const K &query, std::ofstream& outputfile, double &distance_NN,double &time_NN) =0;
 		virtual void RS (const K &query,std::ofstream& outputfile, int c, double R, int probes, int M) =0;
 		virtual long long int memory_used(int dim)=0;
 };
@@ -107,7 +107,7 @@ class HyperCube_EUC : public HyperCube<K>
 		}
 		
 		/*== Neighbour functions*/
-		void NN(const K &query, std::ofstream& outputfile, double &distance_NN)
+		void NN(const K &query, std::ofstream& outputfile, double &distance_NN, double &time_NN)
 		{
 			double distance;
 			HyperNode<K> * temp = NULL;
@@ -143,13 +143,10 @@ class HyperCube_EUC : public HyperCube<K>
 			end_time = clock();
 
 			distance_NN = min_distance;
-
-			outputfile << identifier << std::endl;
-			outputfile << "distanceTrue: " << min_distance << std::endl;
-			outputfile << "tTrue: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl; 
+			time_NN = double(end_time - begin_time) / CLOCKS_PER_SEC;
 		}
 
-		void ANN(const K &query, std::ofstream& outputfile, int probes, int M, double &distance_ANN, double &time_ANN)
+		void ANN(const K &query, std::ofstream& outputfile, int probes, int M, double &distance_ANN, double &time_ANN, std::string &identifier_ANN)
 		{
 			std::vector<int> hamming_neighbours;
 
@@ -211,11 +208,8 @@ class HyperCube_EUC : public HyperCube<K>
 			end_time = clock();
 
 			distance_ANN = min_distance;
+			identifier_ANN = identifier;
 			time_ANN = double(end_time - begin_time) / CLOCKS_PER_SEC;
-
-			outputfile << identifier << std::endl;
-			outputfile << "distanceCube: " << min_distance << std::endl;
-			outputfile << "tCube: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl; 
 		}
 
 		void RS(const K &query, std::ofstream& outputfile, int c, double R, int probes, int M)
@@ -276,7 +270,8 @@ class HyperCube_EUC : public HyperCube<K>
 
 			/*== print neighbours*/
 			for(unsigned int i=0; i<distance_list.size(); i++)
-				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
+				//outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
+				outputfile << identifier_list[i] << std::endl;
 		}
 
 		long long int memory_used(int dim)
@@ -347,7 +342,7 @@ class HyperCube_COS : public HyperCube<K>
         	} 
 		}
 		
-		void ANN(const K &query, std::ofstream &outputfile, int probes, int M, double &distance_ANN, double &time_ANN)
+		void ANN(const K &query, std::ofstream &outputfile, int probes, int M, double &distance_ANN, double &time_ANN, std::string &identifier_ANN)
 		{
 			std::vector<int> hamming_neighbours;
 
@@ -409,14 +404,11 @@ class HyperCube_COS : public HyperCube<K>
 			end_time = clock();
 
 			distance_ANN = min_distance;
+			identifier_ANN = identifier;
 			time_ANN = double(end_time - begin_time) / CLOCKS_PER_SEC;
-
-			outputfile << identifier << std::endl;
-			outputfile << "distanceCube: " << min_distance << std::endl;
-			outputfile << "tCube: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl; 
 		}
 
-		void NN(const K &query, std::ofstream &outputfile, double &distance_NN)
+		void NN(const K &query, std::ofstream &outputfile, double &distance_NN, double &time_NN)
 		{
 			double distance;
 			HyperNode<K> * temp = NULL;
@@ -452,10 +444,7 @@ class HyperCube_COS : public HyperCube<K>
 			end_time = clock();
 
 			distance_NN = min_distance;
-
-			outputfile << identifier << std::endl;
-			outputfile << "distanceTrue: " << min_distance << std::endl;
-			outputfile << "tTrue: " << float(end_time - begin_time) / CLOCKS_PER_SEC << " secs" << std::endl; 
+			time_NN = double(end_time - begin_time) / CLOCKS_PER_SEC;
 		}
 
 		void RS (const K &query,std::ofstream& outputfile, int c, double R, int probes, int M)
@@ -516,7 +505,8 @@ class HyperCube_COS : public HyperCube<K>
 
 			/*== print neighbours*/
 			for(unsigned int i=0; i<distance_list.size(); i++)
-				outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
+				//outputfile << identifier_list[i] << " " << distance_list[i] << std::endl;
+				outputfile << identifier_list[i] << std::endl;
 		}
 
 		long long int memory_used(int dim)

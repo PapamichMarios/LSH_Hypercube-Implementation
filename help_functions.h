@@ -20,10 +20,11 @@ namespace help_functions
 	inline void print_RS(std::map<std::string, double> dist_map, std::ofstream &outputfile)
 	{
 		for(std::map<std::string, double>::const_iterator it = dist_map.begin();it != dist_map.end(); ++it)
-			outputfile << it->first << " " << it->second << std::endl;
+			//outputfile << it->first << " " << it->second << std::endl;
+			outputfile << it->first << std::endl;
 	}
 
-	inline void print_NN(std::vector<std::vector<std::string>> hash_table_measurements,std::ofstream& outputfile)
+	inline void print_NN_ANN_LSH(std::ofstream &outputfile, std::vector<std::vector<std::string>> hash_table_measurements, std::vector<std::string> measurements)
 	{
 		std::vector<double> distance_list;
 
@@ -33,26 +34,20 @@ namespace help_functions
 		auto min = std::min_element(distance_list.begin(), distance_list.end());
 		int min_index = std::distance(distance_list.begin(), min);
 
-		/*== print to file*/
-		outputfile << hash_table_measurements.at(min_index).at(1) << std::endl;
-		outputfile << "distanceTrue: " << *min << std::endl;
-		outputfile << "tTrue: " << hash_table_measurements.at(min_index).at(2) << " secs" << std::endl;
+		outputfile << "Nearest neighbor: " << hash_table_measurements.at(min_index).at(1) << std::endl;
+		outputfile << "distanceLSH: " << hash_table_measurements.at(min_index).at(0) << std::endl;
+		outputfile << "distanceTrue: " << measurements.at(0) << std::endl;
+		outputfile << "tLSH: " << hash_table_measurements.at(min_index).at(2) << std::endl;
+		outputfile << "tTrue: " << measurements.at(1) << std::endl;
 	}
 
-	inline void print_ANN(std::vector<std::vector<std::string>> hash_table_measurements,std::ofstream& outputfile)
+	inline void print_NN_ANN_CUBE(std::ofstream &outputfile, double distance_ANN, double time_ANN, double distance_NN, double time_NN, std::string identifier_ANN)
 	{
-		std::vector<double> distance_list;
-
-		for(unsigned int i=0; i<hash_table_measurements.size(); i++)
-			distance_list.push_back(stod(hash_table_measurements.at(i).at(0)));
-			
-		auto min = std::min_element(distance_list.begin(), distance_list.end());
-		int min_index = std::distance(distance_list.begin(), min);
-
-		/*== print to file*/
-		outputfile << hash_table_measurements.at(min_index).at(1) << std::endl;
-		outputfile << "distanceLSH: " << *min << std::endl;
-		outputfile << "tLSH: " << hash_table_measurements.at(min_index).at(2) << " secs" << std::endl;
+		outputfile << "Nearest neighbor: " << identifier_ANN << std::endl;
+		outputfile << "distanceLSH: " << distance_ANN << std::endl;
+		outputfile << "distanceTrue: " << distance_NN << std::endl;
+		outputfile << "tLSH: " << time_ANN << std::endl;
+		outputfile << "tTrue: " << time_NN << std::endl;
 	}
 
 	inline double * normal_distribution_vector(int dim)
